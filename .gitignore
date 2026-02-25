@@ -40,9 +40,12 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# prisma
+/lib/generated/prisma
+
+# agents
 .agents/*
 .claude/*
 skills-lock.json
 CLAUDE.md
 PLAN.md
-/lib/generated/prisma
