@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Next.js middleware runs in the Edge runtime, which is incompatible with
+// Next.js proxy runs in the Edge runtime, which is incompatible with
 // the Node.js-only Prisma adapter used in lib/auth.ts. We do a lightweight
 // cookie-presence check here to guard navigation; full session validation
 // is enforced inside each protected API route and server component.
 const SESSION_COOKIE = "better-auth.session_token";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (!pathname.startsWith("/dashboard")) {
