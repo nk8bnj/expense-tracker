@@ -11,13 +11,18 @@ export async function GET(request: NextRequest) {
 
   const userId = session.user.id;
 
-  // 2. Aggregate expenses per year via raw SQL (Prisma groupBy cannot extract date parts)
-  const expenseRows = await prisma.$queryRaw<{ year: number; total: bigint }[]>`
-    SELECT EXTRACT(YEAR FROM date)::int AS year, SUM(amount_cents)::bigint AS total
-    FROM expense
-    WHERE user_id = ${userId}
-    GROUP BY year
-  `;
+  // 2. Fetch all expenses and aggregate by year in JS
+  //    (avoids $queryRaw which has compatibility issues with Prisma 7 + pg adapter)
+  const expenses = await prisma.expense.findMany({
+    where: { userId },
+    select: { date: true, amountCents: true },
+  });
+
+  const expenseMap = new Map<number, number>();
+  for (const expense of expenses) {
+    const year = expense.date.getFullYear();
+    expenseMap.set(year, (expenseMap.get(year) ?? 0) + expense.amountCents);
+  }
 
   // 3. Aggregate income per year using Prisma groupBy (MonthlyIncome has an explicit year field)
   const incomeRows = await prisma.monthlyIncome.groupBy({
@@ -26,18 +31,12 @@ export async function GET(request: NextRequest) {
     where: { userId },
   });
 
-  // 4. Build lookup maps
-  const expenseMap = new Map<number, number>();
-  for (const row of expenseRows) {
-    expenseMap.set(row.year, Number(row.total));
-  }
-
   const incomeMap = new Map<number, number>();
   for (const row of incomeRows) {
     incomeMap.set(row.year, row._sum.amountCents ?? 0);
   }
 
-  // 5. Collect all years from both datasets
+  // 4. Collect all years from both datasets
   const allYears = new Set([...expenseMap.keys(), ...incomeMap.keys()]);
 
   const years = Array.from(allYears)
