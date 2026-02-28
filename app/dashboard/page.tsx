@@ -1,5 +1,6 @@
 import { KpiCards } from "@/components/kpi-cards"
 import { IncomeExpenseLineChart } from "@/components/charts/income-expense-line-chart"
+import { CategoryPieChart } from "@/components/charts/category-pie-chart"
 
 export default function DashboardPage() {
   return (
@@ -9,7 +10,10 @@ export default function DashboardPage() {
         <p className="mt-1 text-sm text-muted-foreground">Welcome to your expense tracker.</p>
       </div>
       <KpiCards />
-      <IncomeExpenseLineChart />
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <IncomeExpenseLineChart />
+        <CategoryPieChart />
+      </div>
     </div>
   )
 }
