@@ -4,8 +4,9 @@ import { Suspense } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { motion, useMotionValue, useSpring, useTransform } from "motion/react"
 import { useEffect } from "react"
-import { TrendingUp, TrendingDown, Wallet } from "lucide-react"
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { TrendingUp, TrendingDown, Wallet, Pencil } from "lucide-react"
+import { Card, CardHeader, CardTitle, CardContent, CardAction } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { useMonthYearFilter } from "@/components/month-year-filter"
 import { centsToDisplay } from "@/lib/money"
 
@@ -53,7 +54,7 @@ const CARDS = [
   },
 ]
 
-function KpiCardsInner() {
+function KpiCardsInner({ onEditIncome }: { onEditIncome?: () => void }) {
   const { year, month } = useMonthYearFilter()
 
   const { data, isLoading, isError } = useQuery<MonthStat[]>({
@@ -119,6 +120,13 @@ function KpiCardsInner() {
                   <Icon className="size-4" style={{ color: accent }} />
                   {card.label}
                 </CardTitle>
+                {card.field === "income" && onEditIncome && (
+                  <CardAction>
+                    <Button variant="ghost" size="icon-sm" onClick={onEditIncome}>
+                      <Pencil className="size-3.5" />
+                    </Button>
+                  </CardAction>
+                )}
               </CardHeader>
               <CardContent>
                 <AnimatedAmount cents={value} isError={isError} />
@@ -131,7 +139,7 @@ function KpiCardsInner() {
   )
 }
 
-export function KpiCards() {
+export function KpiCards({ onEditIncome }: { onEditIncome?: () => void }) {
   return (
     <Suspense
       fallback={
@@ -149,7 +157,7 @@ export function KpiCards() {
         </div>
       }
     >
-      <KpiCardsInner />
+      <KpiCardsInner onEditIncome={onEditIncome} />
     </Suspense>
   )
 }
