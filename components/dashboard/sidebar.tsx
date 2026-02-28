@@ -2,13 +2,12 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Receipt, BarChart3 } from "lucide-react"
+import { LayoutDashboard, BarChart3 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
 const NAV_LINKS = [
   { label: "Dashboard",  href: "/dashboard",            icon: LayoutDashboard },
-  { label: "Expenses",   href: "/dashboard/expenses",   icon: Receipt },
   { label: "Statistics", href: "/dashboard/statistics", icon: BarChart3 },
 ] as const
 

@@ -1,6 +1,7 @@
 "use client"
 
 import { Suspense, useState } from "react"
+import { Plus } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import { KpiCards } from "@/components/kpi-cards"
 import { IncomeExpenseLineChart } from "@/components/charts/income-expense-line-chart"
@@ -14,6 +15,9 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { IncomeForm } from "@/components/income-form"
+import { ExpensesTable } from "@/components/expenses-table"
+import { ExpenseFormDialog } from "@/components/expense-form-dialog"
+import { Button } from "@/components/ui/button"
 
 type MonthStat = {
   month: number
@@ -41,6 +45,30 @@ function IncomeFormWithContext({ onSuccess }: { onSuccess: () => void }) {
       currentAmountCents={currentIncomeCents}
       onSuccess={onSuccess}
     />
+  )
+}
+
+function DashboardExpensesSection() {
+  const { year, month } = useMonthYearFilter()
+  const [addOpen, setAddOpen] = useState(false)
+
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Expenses</h2>
+        <Button size="sm" onClick={() => setAddOpen(true)}>
+          <Plus />
+          Add Expense
+        </Button>
+      </div>
+      <ExpensesTable year={year} month={month} />
+      <ExpenseFormDialog
+        open={addOpen}
+        onOpenChange={setAddOpen}
+        year={year}
+        month={month}
+      />
+    </div>
   )
 }
 
@@ -72,6 +100,9 @@ export default function DashboardPage() {
         <IncomeExpenseLineChart />
         <CategoryPieChart />
       </div>
+      <Suspense>
+        <DashboardExpensesSection />
+      </Suspense>
     </div>
   )
 }
