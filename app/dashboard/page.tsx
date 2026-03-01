@@ -18,6 +18,7 @@ import { IncomeForm } from "@/components/income-form"
 import { ExpensesTable } from "@/components/expenses-table"
 import { ExpenseFormDialog } from "@/components/expense-form-dialog"
 import { Button } from "@/components/ui/button"
+import { CategoryBreakdownTable } from "@/components/category-breakdown-table"
 
 type MonthStat = {
   month: number
@@ -46,6 +47,11 @@ function IncomeFormWithContext({ onSuccess }: { onSuccess: () => void }) {
       onSuccess={onSuccess}
     />
   )
+}
+
+function CategoryBreakdownSection() {
+  const { year, month } = useMonthYearFilter()
+  return <CategoryBreakdownTable year={year} month={month} />
 }
 
 function DashboardExpensesSection() {
@@ -96,8 +102,9 @@ export default function DashboardPage() {
           </Suspense>
         </DialogContent>
       </Dialog>
+      <IncomeExpenseLineChart />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <IncomeExpenseLineChart />
+        <CategoryBreakdownSection />
         <CategoryPieChart />
       </div>
       <Suspense>
