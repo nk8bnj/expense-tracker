@@ -2,17 +2,13 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { LogOut, Menu } from "lucide-react"
+import { LogOut } from "lucide-react"
 
 import { useSession, signOut } from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 
-export function Topbar({
-  onMenuClick,
-}: {
-  onMenuClick: () => void
-}) {
+export function Topbar() {
   const { data: session } = useSession()
   const router = useRouter()
   const [isSigningOut, setIsSigningOut] = useState(false)
@@ -28,17 +24,6 @@ export function Topbar({
 
   return (
     <header className="flex h-14 items-center gap-3 border-b border-border bg-background px-4">
-      {/* Hamburger — mobile only */}
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        className="md:hidden"
-        onClick={onMenuClick}
-        aria-label="Open menu"
-      >
-        <Menu className="size-4" />
-      </Button>
-
       {/* Spacer */}
       <div className="flex-1" />
 
