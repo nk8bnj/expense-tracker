@@ -17,6 +17,13 @@ type MonthStat = {
   balance: number
 }
 
+type YearlyStat = {
+  year: number
+  totalExpenses: number
+  totalIncome: number
+  balance: number
+}
+
 type StatField = "income" | "totalExpenses" | "balance"
 
 function AnimatedAmount({ cents, isError }: { cents: number; isError: boolean }) {
@@ -55,22 +62,56 @@ const CARDS = [
 ]
 
 function KpiCardsInner({ onEditIncome }: { onEditIncome?: () => void }) {
-  const { year, month } = useMonthYearFilter()
+  const { year, month, view } = useMonthYearFilter()
 
-  const { data, isLoading, isError } = useQuery<MonthStat[]>({
+  const yearlyQuery = useQuery<YearlyStat[]>({
+    queryKey: ["stats", "yearly"],
+    queryFn: () =>
+      fetch("/api/stats/yearly").then((r) => {
+        if (!r.ok) throw new Error("Failed to fetch")
+        return r.json()
+      }),
+    enabled: view === "years",
+  })
+
+  const monthlyQuery = useQuery<MonthStat[]>({
     queryKey: ["stats", "monthly", year],
     queryFn: () =>
       fetch(`/api/stats/monthly?year=${year}`).then((r) => {
         if (!r.ok) throw new Error("Failed to fetch")
         return r.json()
       }),
+    enabled: view !== "years",
   })
 
-  const monthData = data?.find((d) => d.month === month) ?? {
-    income: 0,
-    totalExpenses: 0,
-    balance: 0,
-  }
+  const stats = (() => {
+    if (view === "years") {
+      const rows = yearlyQuery.data ?? []
+      return {
+        income: rows.reduce((s, r) => s + r.totalIncome, 0),
+        totalExpenses: rows.reduce((s, r) => s + r.totalExpenses, 0),
+        balance: rows.reduce((s, r) => s + r.balance, 0),
+      }
+    }
+    if (view === "months") {
+      const rows = monthlyQuery.data ?? []
+      return {
+        income: rows.reduce((s, r) => s + r.income, 0),
+        totalExpenses: rows.reduce((s, r) => s + r.totalExpenses, 0),
+        balance: rows.reduce((s, r) => s + r.balance, 0),
+      }
+    }
+    return (
+      monthlyQuery.data?.find((d) => d.month === month) ?? {
+        income: 0,
+        totalExpenses: 0,
+        balance: 0,
+      }
+    )
+  })()
+
+  const isLoading = view === "years" ? yearlyQuery.isLoading : monthlyQuery.isLoading
+  const isError = view === "years" ? yearlyQuery.isError : monthlyQuery.isError
 
   if (isLoading) {
     return (
@@ -95,7 +136,7 @@ function KpiCardsInner({ onEditIncome }: { onEditIncome?: () => void }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
       {CARDS.map((card, index) => {
-        const value = monthData[card.field] as number
+        const value = stats[card.field] as number
         const accent =
           card.color ?? (value >= 0 ? "#59FF24" : "#FF161A")
         const Icon = card.icon
@@ -120,7 +161,7 @@ function KpiCardsInner({ onEditIncome }: { onEditIncome?: () => void }) {
                   <Icon className="size-4" style={{ color: accent }} />
                   {card.label}
                 </CardTitle>
-                {card.field === "income" && onEditIncome && (
+                {card.field === "income" && onEditIncome && view !== "years" && (
                   <CardAction>
                     <Button variant="ghost" size="icon-sm" onClick={onEditIncome}>
                       <Pencil className="size-3.5" />

@@ -5,12 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 const querySchema = z.object({
-  year: z.coerce
-    .number()
-    .int()
-    .min(2000)
-    .max(2100)
-    .default(new Date().getFullYear()),
+  year: z.coerce.number().int().min(2000).max(2100).optional(),
   month: z.coerce.number().int().min(1).max(12).optional(),
 });
 
@@ -38,17 +33,17 @@ export async function GET(request: NextRequest) {
   const userId = session.user.id;
 
   // 3. Compute date range
-  const start = month
-    ? startOfMonth(new Date(year, month - 1))
-    : new Date(year, 0, 1);
-  const end = month
-    ? endOfMonth(new Date(year, month - 1))
-    : new Date(year, 11, 31, 23, 59, 59, 999);
+  const start = year
+    ? month ? startOfMonth(new Date(year, month - 1)) : new Date(year, 0, 1)
+    : undefined;
+  const end = year
+    ? month ? endOfMonth(new Date(year, month - 1)) : new Date(year, 11, 31, 23, 59, 59, 999)
+    : undefined;
 
   // 4. Aggregate expenses by category
   const rows = await prisma.expense.groupBy({
     by: ["category"],
-    where: { userId, date: { gte: start, lte: end } },
+    where: { userId, ...(start && end ? { date: { gte: start, lte: end } } : {}) },
     _sum: { amountCents: true },
     orderBy: { _sum: { amountCents: "desc" } },
   });

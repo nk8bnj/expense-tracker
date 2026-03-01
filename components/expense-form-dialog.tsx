@@ -36,8 +36,8 @@ type Expense = {
 type Props = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  year: number
-  month: number
+  year?: number
+  month?: number
   expense?: Expense
 }
 
@@ -102,7 +102,7 @@ export function ExpenseFormDialog({ open, onOpenChange, year, month, expense }: 
       return res.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["expenses", year, month] })
+      queryClient.invalidateQueries({ queryKey: ["expenses", year ?? null, month ?? null] })
       onOpenChange(false)
       reset()
       resetMutation()

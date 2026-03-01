@@ -56,17 +56,19 @@ function TableSkeleton() {
 }
 
 interface CategoryBreakdownTableProps {
-  year: number
+  year?: number
   month?: number
 }
 
 export function CategoryBreakdownTable({ year, month }: CategoryBreakdownTableProps) {
-  const url = month
+  const url = !year
+    ? `/api/stats/categories`
+    : month
     ? `/api/stats/categories?year=${year}&month=${month}`
     : `/api/stats/categories?year=${year}`
 
   const { data, isLoading, isError } = useQuery<CategoryStat[]>({
-    queryKey: ["stats", "categories", year, month ?? null],
+    queryKey: ["stats", "categories", year ?? null, month ?? null],
     queryFn: () =>
       fetch(url).then((r) => {
         if (!r.ok) throw new Error("Failed to fetch")

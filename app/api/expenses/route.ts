@@ -12,8 +12,8 @@ const postSchema = z.object({
 });
 
 const querySchema = z.object({
-  year: z.coerce.number().int().min(2000),
-  month: z.coerce.number().int().min(1).max(12),
+  year: z.coerce.number().int().min(2000).optional(),
+  month: z.coerce.number().int().min(1).max(12).optional(),
 });
 
 export async function GET(request: NextRequest) {
@@ -26,8 +26,8 @@ export async function GET(request: NextRequest) {
   // 2. Parse & validate query params
   const { searchParams } = request.nextUrl;
   const parsed = querySchema.safeParse({
-    year: searchParams.get("year"),
-    month: searchParams.get("month"),
+    year: searchParams.get("year") ?? undefined,
+    month: searchParams.get("month") ?? undefined,
   });
 
   if (!parsed.success) {
@@ -39,15 +39,19 @@ export async function GET(request: NextRequest) {
 
   const { year, month } = parsed.data;
 
-  // 3. Compute date range
-  const start = startOfMonth(new Date(year, month - 1));
-  const end = endOfMonth(new Date(year, month - 1));
+  // 3. Compute date filter
+  const dateFilter =
+    year && month
+      ? { gte: startOfMonth(new Date(year, month - 1)), lte: endOfMonth(new Date(year, month - 1)) }
+      : year
+      ? { gte: new Date(year, 0, 1), lte: new Date(year, 11, 31, 23, 59, 59, 999) }
+      : undefined;
 
   // 4. Query DB
   const expenses = await prisma.expense.findMany({
     where: {
       userId: session.user.id,
-      date: { gte: start, lte: end },
+      ...(dateFilter ? { date: dateFilter } : {}),
     },
     orderBy: { date: "desc" },
   });

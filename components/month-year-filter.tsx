@@ -11,6 +11,14 @@ import {
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 
+export type ViewMode = "years" | "months" | "days"
+
+const VIEW_OPTIONS = [
+  { value: "years",  label: "Years"  },
+  { value: "months", label: "Months" },
+  { value: "days",   label: "Days"   },
+] as const
+
 const MONTHS = [
   { value: "1", label: "January" },
   { value: "2", label: "February" },
@@ -36,6 +44,7 @@ for (let y = YEAR_START; y <= currentYear; y++) {
 function MonthYearFilterSkeleton() {
   return (
     <div className="flex items-center gap-2">
+      <div className="h-8 w-[160px] animate-pulse rounded-md bg-muted" />
       <div className="h-8 w-[130px] animate-pulse rounded-md bg-muted" />
       <div className="h-8 w-[90px] animate-pulse rounded-md bg-muted" />
     </div>
@@ -50,6 +59,8 @@ function MonthYearFilterInner({ className }: { className?: string }) {
   const now = new Date()
   const year = searchParams.get("year") ?? String(now.getFullYear())
   const month = searchParams.get("month") ?? String(now.getMonth() + 1)
+  const raw = searchParams.get("view")
+  const view: ViewMode = raw === "years" || raw === "days" ? raw : "months"
 
   function updateParam(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString())
@@ -59,31 +70,52 @@ function MonthYearFilterInner({ className }: { className?: string }) {
 
   return (
     <div className={cn("flex items-center gap-2", className)}>
-      <Select value={month} onValueChange={(v) => updateParam("month", v)}>
-        <SelectTrigger size="sm" className="w-[130px]">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {MONTHS.map((m) => (
-            <SelectItem key={m.value} value={m.value}>
-              {m.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="flex h-8 rounded-md border border-border bg-muted p-0.5 gap-0.5">
+        {VIEW_OPTIONS.map((opt) => (
+          <button
+            key={opt.value}
+            onClick={() => updateParam("view", opt.value)}
+            className={cn(
+              "rounded px-2.5 text-sm font-medium transition-colors",
+              view === opt.value
+                ? "bg-background text-foreground shadow-xs"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
 
-      <Select value={year} onValueChange={(v) => updateParam("year", v)}>
-        <SelectTrigger size="sm" className="w-[90px]">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {YEARS.map((y) => (
-            <SelectItem key={y} value={String(y)}>
-              {y}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      {view !== "years" && (
+        <Select value={year} onValueChange={(v) => updateParam("year", v)}>
+          <SelectTrigger size="sm" className="w-[90px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {YEARS.map((y) => (
+              <SelectItem key={y} value={String(y)}>
+                {y}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+
+      {view === "days" && (
+        <Select value={month} onValueChange={(v) => updateParam("month", v)}>
+          <SelectTrigger size="sm" className="w-[130px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {MONTHS.map((m) => (
+              <SelectItem key={m.value} value={m.value}>
+                {m.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
     </div>
   )
 }
@@ -96,10 +128,12 @@ export function MonthYearFilter({ className }: { className?: string }) {
   )
 }
 
-export function useMonthYearFilter(): { year: number; month: number } {
+export function useMonthYearFilter(): { year: number; month: number; view: ViewMode } {
   const searchParams = useSearchParams()
   const now = new Date()
   const year = Number(searchParams.get("year") ?? now.getFullYear())
   const month = Number(searchParams.get("month") ?? now.getMonth() + 1)
-  return { year, month }
+  const raw = searchParams.get("view")
+  const view: ViewMode = raw === "years" || raw === "days" ? raw : "months"
+  return { year, month, view }
 }

@@ -50,12 +50,17 @@ function IncomeFormWithContext({ onSuccess }: { onSuccess: () => void }) {
 }
 
 function CategoryBreakdownSection() {
-  const { year, month } = useMonthYearFilter()
-  return <CategoryBreakdownTable year={year} month={month} />
+  const { year, month, view } = useMonthYearFilter()
+  return (
+    <CategoryBreakdownTable
+      year={view !== "years" ? year : undefined}
+      month={view === "days" ? month : undefined}
+    />
+  )
 }
 
 function DashboardExpensesSection() {
-  const { year, month } = useMonthYearFilter()
+  const { year, month, view } = useMonthYearFilter()
   const [addOpen, setAddOpen] = useState(false)
 
   return (
@@ -67,7 +72,10 @@ function DashboardExpensesSection() {
           Add Expense
         </Button>
       </div>
-      <ExpensesTable year={year} month={month} />
+      <ExpensesTable
+        year={view !== "years" ? year : undefined}
+        month={view === "days" ? month : undefined}
+      />
       <ExpenseFormDialog
         open={addOpen}
         onOpenChange={setAddOpen}

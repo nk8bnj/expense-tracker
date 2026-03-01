@@ -79,22 +79,27 @@ function TableSkeleton() {
   )
 }
 
-export function ExpensesTable({ year, month }: { year: number; month: number }) {
+export function ExpensesTable({ year, month }: { year?: number; month?: number }) {
   const queryClient = useQueryClient()
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
   const [deletingExpense, setDeletingExpense] = useState<Expense | null>(null)
 
+  const url = !year
+    ? `/api/expenses`
+    : month
+    ? `/api/expenses?year=${year}&month=${month}`
+    : `/api/expenses?year=${year}`
+
   const { data: expenses, isLoading, isError } = useQuery<Expense[]>({
-    queryKey: ["expenses", year, month],
-    queryFn: () =>
-      fetch(`/api/expenses?year=${year}&month=${month}`).then(r => r.json()),
+    queryKey: ["expenses", year ?? null, month ?? null],
+    queryFn: () => fetch(url).then(r => r.json()),
   })
 
   const { mutate: deleteExpense, isPending: isDeleting } = useMutation({
     mutationFn: (id: string) =>
       fetch(`/api/expenses/${id}`, { method: "DELETE" }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["expenses", year, month] })
+      queryClient.invalidateQueries({ queryKey: ["expenses", year ?? null, month ?? null] })
       setDeletingExpense(null)
     },
   })
