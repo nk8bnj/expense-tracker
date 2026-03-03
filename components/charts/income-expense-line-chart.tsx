@@ -11,17 +11,19 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
+  type TooltipProps,
 } from "recharts"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { useMonthYearFilter } from "@/components/month-year-filter"
 import { centsToDisplay } from "@/lib/money"
+import { CATEGORIES } from "@/lib/categories"
 
 type YearStat = {
   year: number
   totalExpenses: number
   totalIncome: number
   balance: number
+  categories: Record<string, number>
 }
 
 type MonthStat = {
@@ -29,17 +31,41 @@ type MonthStat = {
   income: number
   totalExpenses: number
   balance: number
+  categories: Record<string, number>
 }
 
 type DayStat = {
   day: number
   totalExpenses: number
   income: number
+  categories: Record<string, number>
 }
 
 const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 
-type ChartPoint = { name: string; income: number; expenses: number }
+function CustomTooltip({ active, payload, label }: TooltipProps<number, string>) {
+  if (!active || !payload?.length) return null
+  const items = payload
+    .filter((p) => (p.value ?? 0) > 0)
+    .sort((a, b) => {
+      const rank = (key: string | undefined) =>
+        key === "income" ? 0 : key === "totalExpenses" ? 1 : 2
+      return rank(a.dataKey as string) - rank(b.dataKey as string)
+    })
+  if (!items.length) return null
+  return (
+    <div className="rounded-lg border border-border bg-background px-3 py-2 text-xs shadow-md">
+      <p className="mb-1 font-medium text-foreground">{label}</p>
+      {items.map((item) => (
+        <p key={item.dataKey as string} style={{ color: item.color }} className="leading-5">
+          {item.name} : {centsToDisplay((item.value ?? 0) * 100)}
+        </p>
+      ))}
+    </div>
+  )
+}
+
+type ChartPoint = { name: string; income: number; totalExpenses: number } & Record<string, number>
 
 const skeleton = (
   <Card>
@@ -98,7 +124,8 @@ function IncomeExpenseLineChartInner() {
     chartData = yearlyQ.data.map((d) => ({
       name: String(d.year),
       income: d.totalIncome / 100,
-      expenses: d.totalExpenses / 100,
+      totalExpenses: d.totalExpenses / 100,
+      ...Object.fromEntries(Object.entries(d.categories ?? {}).map(([k, v]) => [k, v / 100])),
     }))
   } else if (view === "years" && monthlyQ.data) {
     chartData = MONTH_NAMES.map((name, i) => {
@@ -106,15 +133,31 @@ function IncomeExpenseLineChartInner() {
       return {
         name,
         income: (stat?.income ?? 0) / 100,
-        expenses: (stat?.totalExpenses ?? 0) / 100,
+        totalExpenses: (stat?.totalExpenses ?? 0) / 100,
+        ...Object.fromEntries(Object.entries(stat?.categories ?? {}).map(([k, v]) => [k, v / 100])),
       }
     })
   } else if (view === "months" && dailyQ.data) {
     chartData = dailyQ.data.map((d) => ({
       name: String(d.day),
       income: d.income / 100,
-      expenses: d.totalExpenses / 100,
+      totalExpenses: d.totalExpenses / 100,
+      ...Object.fromEntries(Object.entries(d.categories ?? {}).map(([k, v]) => [k, v / 100])),
     }))
+  }
+
+  const makeDot = (catValue: string, stroke: string) => {
+    if (view !== "months") return true as const
+    return (props: { cx: number; cy: number; index: number }) => {
+      const { cx, cy, index } = props
+      const curr = (chartData[index]?.[catValue] as number | undefined) ?? 0
+      const prev = (chartData[index - 1]?.[catValue] as number | undefined) ?? 0
+      const next = (chartData[index + 1]?.[catValue] as number | undefined) ?? 0
+      if (curr > 0 && prev === 0 && next === 0) {
+        return <circle key={`dot-${catValue}-${index}`} cx={cx} cy={cy} r={4} fill={stroke} stroke="none" />
+      }
+      return null
+    }
   }
 
   return (
@@ -136,15 +179,29 @@ function IncomeExpenseLineChartInner() {
                 tickFormatter={(v) => "$" + v.toLocaleString()}
                 tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
               />
-              <Tooltip
-                formatter={(val: number | undefined) => val != null ? centsToDisplay(val * 100) : ""}
-                itemSorter={(item) => (item.dataKey === "income" ? 0 : 1)}
-              />
-              <Legend />
+              <Tooltip content={<CustomTooltip />} />
               <Line dataKey="income" name="Income" stroke="#59FF24" dot={view !== "months"} strokeWidth={2} />
-              <Line dataKey="expenses" name="Expenses" stroke="#FF161A" dot={view !== "months"} strokeWidth={2} />
+              <Line dataKey="totalExpenses" name="Total Expenses" stroke="#FF4444" dot={view !== "months"} strokeWidth={2} />
+              {CATEGORIES.map((cat) => (
+                <Line key={cat.value} dataKey={cat.value} name={cat.label} stroke={cat.color} dot={makeDot(cat.value, cat.color)} strokeWidth={2} connectNulls />
+              ))}
             </LineChart>
           </ResponsiveContainer>
+          <div className="mt-2 flex flex-wrap justify-center gap-x-4 gap-y-1">
+            {[
+              { name: "Income", color: "#59FF24" },
+              { name: "Total Expenses", color: "#FF4444" },
+              ...CATEGORIES.map((cat) => ({ name: cat.label, color: cat.color })),
+            ].map((item) => (
+              <span key={item.name} className="flex items-center gap-1 text-xs text-muted-foreground">
+                <span
+                  className="inline-block h-[2px] w-4 rounded-full"
+                  style={{ backgroundColor: item.color }}
+                />
+                {item.name}
+              </span>
+            ))}
+          </div>
         </CardContent>
       </Card>
     </motion.div>

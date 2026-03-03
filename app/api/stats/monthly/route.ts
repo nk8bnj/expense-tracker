@@ -41,13 +41,17 @@ export async function GET(request: NextRequest) {
         lt: new Date(year + 1, 0, 1),
       },
     },
-    select: { date: true, amountCents: true },
+    select: { date: true, amountCents: true, category: true },
   });
 
   const expenseMap = new Map<number, number>();
+  const categoryMap = new Map<number, Map<string, number>>();
   for (const expense of expenses) {
     const month = expense.date.getMonth() + 1;
     expenseMap.set(month, (expenseMap.get(month) ?? 0) + expense.amountCents);
+    if (!categoryMap.has(month)) categoryMap.set(month, new Map());
+    const catMap = categoryMap.get(month)!;
+    catMap.set(expense.category, (catMap.get(expense.category) ?? 0) + expense.amountCents);
   }
 
   // 4. Fetch monthly income records for the year
@@ -66,7 +70,8 @@ export async function GET(request: NextRequest) {
     const month = i + 1;
     const totalExpenses = expenseMap.get(month) ?? 0;
     const income = incomeMap.get(month) ?? 0;
-    return { month, totalExpenses, income, balance: income - totalExpenses };
+    const categories = Object.fromEntries(categoryMap.get(month) ?? new Map());
+    return { month, totalExpenses, income, balance: income - totalExpenses, categories };
   });
 
   return NextResponse.json(months);

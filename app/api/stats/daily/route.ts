@@ -44,13 +44,17 @@ export async function GET(request: NextRequest) {
         lte: endOfMonth,
       },
     },
-    select: { date: true, amountCents: true },
+    select: { date: true, amountCents: true, category: true },
   });
 
   const expenseMap = new Map<number, number>();
+  const categoryMap = new Map<number, Map<string, number>>();
   for (const expense of expenses) {
     const day = expense.date.getDate();
     expenseMap.set(day, (expenseMap.get(day) ?? 0) + expense.amountCents);
+    if (!categoryMap.has(day)) categoryMap.set(day, new Map());
+    const catMap = categoryMap.get(day)!;
+    catMap.set(expense.category, (catMap.get(expense.category) ?? 0) + expense.amountCents);
   }
 
   // 4. Fetch monthly income record
@@ -62,10 +66,12 @@ export async function GET(request: NextRequest) {
   const daysInMonth = getDaysInMonth(new Date(year, month - 1));
   const days = Array.from({ length: daysInMonth }, (_, i) => {
     const day = i + 1;
+    const categories = Object.fromEntries(categoryMap.get(day) ?? new Map());
     return {
       day,
       totalExpenses: expenseMap.get(day) ?? 0,
       income: incomeRecord?.amountCents ?? 0,
+      categories,
     };
   });
 

@@ -15,13 +15,17 @@ export async function GET(request: NextRequest) {
   //    (avoids $queryRaw which has compatibility issues with Prisma 7 + pg adapter)
   const expenses = await prisma.expense.findMany({
     where: { userId },
-    select: { date: true, amountCents: true },
+    select: { date: true, amountCents: true, category: true },
   });
 
   const expenseMap = new Map<number, number>();
+  const categoryMap = new Map<number, Map<string, number>>();
   for (const expense of expenses) {
     const year = expense.date.getFullYear();
     expenseMap.set(year, (expenseMap.get(year) ?? 0) + expense.amountCents);
+    if (!categoryMap.has(year)) categoryMap.set(year, new Map());
+    const catMap = categoryMap.get(year)!;
+    catMap.set(expense.category, (catMap.get(expense.category) ?? 0) + expense.amountCents);
   }
 
   // 3. Aggregate income per year using Prisma groupBy (MonthlyIncome has an explicit year field)
@@ -44,7 +48,8 @@ export async function GET(request: NextRequest) {
     .map((year) => {
       const totalExpenses = expenseMap.get(year) ?? 0;
       const totalIncome = incomeMap.get(year) ?? 0;
-      return { year, totalExpenses, totalIncome, balance: totalIncome - totalExpenses };
+      const categories = Object.fromEntries(categoryMap.get(year) ?? new Map());
+      return { year, totalExpenses, totalIncome, balance: totalIncome - totalExpenses, categories };
     });
 
   return NextResponse.json(years);
