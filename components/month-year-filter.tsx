@@ -11,12 +11,11 @@ import {
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 
-export type ViewMode = "years" | "months" | "days"
+export type ViewMode = "total" | "months"
 
 const VIEW_OPTIONS = [
-  { value: "years",  label: "Years"  },
+  { value: "total",  label: "Total"  },
   { value: "months", label: "Months" },
-  { value: "days",   label: "Days"   },
 ] as const
 
 const MONTHS = [
@@ -44,9 +43,9 @@ for (let y = YEAR_START; y <= currentYear; y++) {
 function MonthYearFilterSkeleton() {
   return (
     <div className="flex items-center gap-2">
-      <div className="h-8 w-[160px] animate-pulse rounded-md bg-muted" />
-      <div className="h-8 w-[130px] animate-pulse rounded-md bg-muted" />
+      <div className="h-8 w-[120px] animate-pulse rounded-md bg-muted" />
       <div className="h-8 w-[90px] animate-pulse rounded-md bg-muted" />
+      <div className="h-8 w-[130px] animate-pulse rounded-md bg-muted" />
     </div>
   )
 }
@@ -60,7 +59,7 @@ function MonthYearFilterInner({ className }: { className?: string }) {
   const year = searchParams.get("year") ?? String(now.getFullYear())
   const month = searchParams.get("month") ?? String(now.getMonth() + 1)
   const raw = searchParams.get("view")
-  const view: ViewMode = raw === "years" || raw === "days" ? raw : "months"
+  const view: ViewMode = raw === "total" ? "total" : "months"
 
   function updateParam(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString())
@@ -87,7 +86,7 @@ function MonthYearFilterInner({ className }: { className?: string }) {
         ))}
       </div>
 
-      {view !== "years" && (
+      {view === "months" && (
         <Select value={year} onValueChange={(v) => updateParam("year", v)}>
           <SelectTrigger size="sm" className="w-[90px]">
             <SelectValue />
@@ -102,7 +101,7 @@ function MonthYearFilterInner({ className }: { className?: string }) {
         </Select>
       )}
 
-      {view === "days" && (
+      {view === "months" && (
         <Select value={month} onValueChange={(v) => updateParam("month", v)}>
           <SelectTrigger size="sm" className="w-[130px]">
             <SelectValue />
@@ -134,6 +133,6 @@ export function useMonthYearFilter(): { year: number; month: number; view: ViewM
   const year = Number(searchParams.get("year") ?? now.getFullYear())
   const month = Number(searchParams.get("month") ?? now.getMonth() + 1)
   const raw = searchParams.get("view")
-  const view: ViewMode = raw === "years" || raw === "days" ? raw : "months"
+  const view: ViewMode = raw === "total" ? "total" : "months"
   return { year, month, view }
 }

@@ -34,12 +34,11 @@ function CategoryPieChartInner() {
   const { year, month, view } = useMonthYearFilter()
 
   const url =
-    view === "years" ? `/api/stats/categories`
-    : view === "months" ? `/api/stats/categories?year=${year}`
+    view === "total" ? `/api/stats/categories`
     : `/api/stats/categories?year=${year}&month=${month}`
 
   const { data, isLoading } = useQuery<CategoryStat[]>({
-    queryKey: ["stats", "categories", view === "years" ? null : year, view === "days" ? month : null],
+    queryKey: ["stats", "categories", view === "total" ? null : year, view === "total" ? null : month],
     queryFn: () =>
       fetch(url).then((r) => {
         if (!r.ok) throw new Error("Failed to fetch")

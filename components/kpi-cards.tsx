@@ -71,7 +71,7 @@ function KpiCardsInner({ onEditIncome }: { onEditIncome?: () => void }) {
         if (!r.ok) throw new Error("Failed to fetch")
         return r.json()
       }),
-    enabled: view === "years",
+    enabled: view === "total",
   })
 
   const monthlyQuery = useQuery<MonthStat[]>({
@@ -81,22 +81,14 @@ function KpiCardsInner({ onEditIncome }: { onEditIncome?: () => void }) {
         if (!r.ok) throw new Error("Failed to fetch")
         return r.json()
       }),
-    enabled: view !== "years",
+    enabled: view !== "total",
   })
 
   const stats = (() => {
-    if (view === "years") {
+    if (view === "total") {
       const rows = yearlyQuery.data ?? []
       return {
         income: rows.reduce((s, r) => s + r.totalIncome, 0),
-        totalExpenses: rows.reduce((s, r) => s + r.totalExpenses, 0),
-        balance: rows.reduce((s, r) => s + r.balance, 0),
-      }
-    }
-    if (view === "months") {
-      const rows = monthlyQuery.data ?? []
-      return {
-        income: rows.reduce((s, r) => s + r.income, 0),
         totalExpenses: rows.reduce((s, r) => s + r.totalExpenses, 0),
         balance: rows.reduce((s, r) => s + r.balance, 0),
       }
@@ -110,8 +102,8 @@ function KpiCardsInner({ onEditIncome }: { onEditIncome?: () => void }) {
     )
   })()
 
-  const isLoading = view === "years" ? yearlyQuery.isLoading : monthlyQuery.isLoading
-  const isError = view === "years" ? yearlyQuery.isError : monthlyQuery.isError
+  const isLoading = view === "total" ? yearlyQuery.isLoading : monthlyQuery.isLoading
+  const isError = view === "total" ? yearlyQuery.isError : monthlyQuery.isError
 
   if (isLoading) {
     return (
@@ -161,7 +153,7 @@ function KpiCardsInner({ onEditIncome }: { onEditIncome?: () => void }) {
                   <Icon className="size-4" style={{ color: accent }} />
                   {card.label}
                 </CardTitle>
-                {card.field === "income" && onEditIncome && view !== "years" && (
+                {card.field === "income" && onEditIncome && view !== "total" && (
                   <CardAction>
                     <Button variant="ghost" size="icon-sm" onClick={onEditIncome}>
                       <Pencil className="size-3.5" />

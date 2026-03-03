@@ -12,17 +12,11 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
+  ReferenceLine,
 } from "recharts"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { useMonthYearFilter } from "@/components/month-year-filter"
 import { centsToDisplay } from "@/lib/money"
-
-type MonthStat = {
-  month: number
-  income: number
-  totalExpenses: number
-  balance: number
-}
 
 type YearStat = {
   year: number
@@ -31,15 +25,16 @@ type YearStat = {
   balance: number
 }
 
-type DayStat = {
-  day: number
-  totalExpenses: number
+type MonthStat = {
+  month: number
   income: number
+  totalExpenses: number
+  balance: number
 }
 
-type ChartPoint = { name: string; income: number; expenses: number }
-
 const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+
+type ChartPoint = { name: string; income: number; expenses: number }
 
 const skeleton = (
   <Card>
@@ -54,6 +49,24 @@ const skeleton = (
 
 function IncomeExpenseLineChartInner() {
   const { year, month, view } = useMonthYearFilter()
+  const selectedMonthIndex = view === "months" ? month - 1 : -1
+
+  const highlightDot = (color: string) =>
+    (props: { cx?: number; cy?: number; index?: number }) => {
+      const { cx = 0, cy = 0, index = -1 } = props
+      if (index !== selectedMonthIndex) return <g key={index} />
+      return (
+        <circle
+          key={index}
+          cx={cx}
+          cy={cy}
+          r={5}
+          fill={color}
+          stroke="white"
+          strokeWidth={2}
+        />
+      )
+    }
 
   const yearlyQ = useQuery<YearStat[]>({
     queryKey: ["stats", "yearly"],
@@ -62,7 +75,7 @@ function IncomeExpenseLineChartInner() {
         if (!r.ok) throw new Error("Failed to fetch")
         return r.json()
       }),
-    enabled: view === "years",
+    enabled: view === "total",
   })
 
   const monthlyQ = useQuery<MonthStat[]>({
@@ -75,26 +88,13 @@ function IncomeExpenseLineChartInner() {
     enabled: view === "months",
   })
 
-  const dailyQ = useQuery<DayStat[]>({
-    queryKey: ["stats", "daily", year, month],
-    queryFn: () =>
-      fetch(`/api/stats/daily?year=${year}&month=${month}`).then((r) => {
-        if (!r.ok) throw new Error("Failed to fetch")
-        return r.json()
-      }),
-    enabled: view === "days",
-  })
-
-  const isLoading =
-    view === "years" ? yearlyQ.isLoading
-    : view === "months" ? monthlyQ.isLoading
-    : dailyQ.isLoading
+  const isLoading = view === "total" ? yearlyQ.isLoading : monthlyQ.isLoading
 
   if (isLoading) return skeleton
 
   let chartData: ChartPoint[] = []
 
-  if (view === "years" && yearlyQ.data) {
+  if (view === "total" && yearlyQ.data) {
     chartData = yearlyQ.data.map((d) => ({
       name: String(d.year),
       income: d.totalIncome / 100,
@@ -102,20 +102,13 @@ function IncomeExpenseLineChartInner() {
     }))
   } else if (view === "months" && monthlyQ.data) {
     chartData = MONTH_NAMES.map((name, i) => {
-      const monthNum = i + 1
-      const stat = monthlyQ.data.find((d) => d.month === monthNum)
+      const stat = monthlyQ.data.find((d) => d.month === i + 1)
       return {
         name,
         income: (stat?.income ?? 0) / 100,
         expenses: (stat?.totalExpenses ?? 0) / 100,
       }
     })
-  } else if (view === "days" && dailyQ.data) {
-    chartData = dailyQ.data.map((d) => ({
-      name: String(d.day),
-      income: d.income / 100,
-      expenses: d.totalExpenses / 100,
-    }))
   }
 
   return (
@@ -139,10 +132,15 @@ function IncomeExpenseLineChartInner() {
               />
               <Tooltip formatter={(val: number | undefined) => val != null ? centsToDisplay(val * 100) : ""} />
               <Legend />
-              {view !== "days" && (
-                <Line dataKey="income" name="Income" stroke="#59FF24" dot={false} strokeWidth={2} />
+              {view === "months" && (
+                <ReferenceLine
+                  x={MONTH_NAMES[month - 1]}
+                  stroke="rgba(255,255,255,0.25)"
+                  strokeDasharray="4 4"
+                />
               )}
-              <Line dataKey="expenses" name="Expenses" stroke="#FF161A" dot={false} strokeWidth={2} />
+              <Line dataKey="income" name="Income" stroke="#59FF24" dot={highlightDot("#59FF24")} strokeWidth={2} />
+              <Line dataKey="expenses" name="Expenses" stroke="#FF161A" dot={highlightDot("#FF161A")} strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>

@@ -53,8 +53,8 @@ function CategoryBreakdownSection() {
   const { year, month, view } = useMonthYearFilter()
   return (
     <CategoryBreakdownTable
-      year={view !== "years" ? year : undefined}
-      month={view === "days" ? month : undefined}
+      year={view !== "total" ? year : undefined}
+      month={view === "months" ? month : undefined}
     />
   )
 }
@@ -73,8 +73,8 @@ function DashboardExpensesSection() {
         </Button>
       </div>
       <ExpensesTable
-        year={view !== "years" ? year : undefined}
-        month={view === "days" ? month : undefined}
+        year={view !== "total" ? year : undefined}
+        month={view === "months" ? month : undefined}
       />
       <ExpenseFormDialog
         open={addOpen}
