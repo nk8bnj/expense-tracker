@@ -93,6 +93,14 @@ function KpiCardsInner({ onEditIncome }: { onEditIncome?: () => void }) {
         balance: rows.reduce((s, r) => s + r.balance, 0),
       }
     }
+    if (view === "years") {
+      const rows = monthlyQuery.data ?? []
+      return {
+        income: rows.reduce((s, r) => s + r.income, 0),
+        totalExpenses: rows.reduce((s, r) => s + r.totalExpenses, 0),
+        balance: rows.reduce((s, r) => s + r.balance, 0),
+      }
+    }
     return (
       monthlyQuery.data?.find((d) => d.month === month) ?? {
         income: 0,
@@ -153,7 +161,7 @@ function KpiCardsInner({ onEditIncome }: { onEditIncome?: () => void }) {
                   <Icon className="size-4" style={{ color: accent }} />
                   {card.label}
                 </CardTitle>
-                {card.field === "income" && onEditIncome && view !== "total" && (
+                {card.field === "income" && onEditIncome && view === "months" && (
                   <CardAction>
                     <Button variant="ghost" size="icon-sm" onClick={onEditIncome}>
                       <Pencil className="size-3.5" />

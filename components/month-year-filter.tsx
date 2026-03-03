@@ -11,10 +11,11 @@ import {
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 
-export type ViewMode = "total" | "months"
+export type ViewMode = "total" | "years" | "months"
 
 const VIEW_OPTIONS = [
   { value: "total",  label: "Total"  },
+  { value: "years",  label: "Years"  },
   { value: "months", label: "Months" },
 ] as const
 
@@ -59,7 +60,7 @@ function MonthYearFilterInner({ className }: { className?: string }) {
   const year = searchParams.get("year") ?? String(now.getFullYear())
   const month = searchParams.get("month") ?? String(now.getMonth() + 1)
   const raw = searchParams.get("view")
-  const view: ViewMode = raw === "total" ? "total" : "months"
+  const view: ViewMode = raw === "total" ? "total" : raw === "years" ? "years" : "months"
 
   function updateParam(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString())
@@ -86,35 +87,31 @@ function MonthYearFilterInner({ className }: { className?: string }) {
         ))}
       </div>
 
-      {view === "months" && (
-        <Select value={year} onValueChange={(v) => updateParam("year", v)}>
-          <SelectTrigger size="sm" className="w-[90px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {YEARS.map((y) => (
-              <SelectItem key={y} value={String(y)}>
-                {y}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
+      <Select value={year} onValueChange={(v) => updateParam("year", v)} disabled={view === "total"}>
+        <SelectTrigger size="sm" className="w-[90px]">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {YEARS.map((y) => (
+            <SelectItem key={y} value={String(y)}>
+              {y}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
-      {view === "months" && (
-        <Select value={month} onValueChange={(v) => updateParam("month", v)}>
-          <SelectTrigger size="sm" className="w-[130px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {MONTHS.map((m) => (
-              <SelectItem key={m.value} value={m.value}>
-                {m.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
+      <Select value={month} onValueChange={(v) => updateParam("month", v)} disabled={view === "total" || view === "years"}>
+        <SelectTrigger size="sm" className="w-[130px]">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {MONTHS.map((m) => (
+            <SelectItem key={m.value} value={m.value}>
+              {m.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   )
 }
@@ -133,6 +130,6 @@ export function useMonthYearFilter(): { year: number; month: number; view: ViewM
   const year = Number(searchParams.get("year") ?? now.getFullYear())
   const month = Number(searchParams.get("month") ?? now.getMonth() + 1)
   const raw = searchParams.get("view")
-  const view: ViewMode = raw === "total" ? "total" : "months"
+  const view: ViewMode = raw === "total" ? "total" : raw === "years" ? "years" : "months"
   return { year, month, view }
 }

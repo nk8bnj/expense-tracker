@@ -100,6 +100,7 @@ export function ExpensesTable({ year, month }: { year?: number; month?: number }
       fetch(`/api/expenses/${id}`, { method: "DELETE" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["expenses", year ?? null, month ?? null] })
+      queryClient.invalidateQueries({ queryKey: ["stats"] })
       setDeletingExpense(null)
     },
   })

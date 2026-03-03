@@ -12,7 +12,6 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ReferenceLine,
 } from "recharts"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { useMonthYearFilter } from "@/components/month-year-filter"
@@ -32,6 +31,12 @@ type MonthStat = {
   balance: number
 }
 
+type DayStat = {
+  day: number
+  totalExpenses: number
+  income: number
+}
+
 const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 
 type ChartPoint = { name: string; income: number; expenses: number }
@@ -49,24 +54,6 @@ const skeleton = (
 
 function IncomeExpenseLineChartInner() {
   const { year, month, view } = useMonthYearFilter()
-  const selectedMonthIndex = view === "months" ? month - 1 : -1
-
-  const highlightDot = (color: string) =>
-    (props: { cx?: number; cy?: number; index?: number }) => {
-      const { cx = 0, cy = 0, index = -1 } = props
-      if (index !== selectedMonthIndex) return <g key={index} />
-      return (
-        <circle
-          key={index}
-          cx={cx}
-          cy={cy}
-          r={5}
-          fill={color}
-          stroke="white"
-          strokeWidth={2}
-        />
-      )
-    }
 
   const yearlyQ = useQuery<YearStat[]>({
     queryKey: ["stats", "yearly"],
@@ -85,10 +72,23 @@ function IncomeExpenseLineChartInner() {
         if (!r.ok) throw new Error("Failed to fetch")
         return r.json()
       }),
+    enabled: view === "years",
+  })
+
+  const dailyQ = useQuery<DayStat[]>({
+    queryKey: ["stats", "daily", year, month],
+    queryFn: () =>
+      fetch(`/api/stats/daily?year=${year}&month=${month}`).then((r) => {
+        if (!r.ok) throw new Error("Failed to fetch")
+        return r.json()
+      }),
     enabled: view === "months",
   })
 
-  const isLoading = view === "total" ? yearlyQ.isLoading : monthlyQ.isLoading
+  const isLoading =
+    view === "total" ? yearlyQ.isLoading
+    : view === "years" ? monthlyQ.isLoading
+    : dailyQ.isLoading
 
   if (isLoading) return skeleton
 
@@ -100,7 +100,7 @@ function IncomeExpenseLineChartInner() {
       income: d.totalIncome / 100,
       expenses: d.totalExpenses / 100,
     }))
-  } else if (view === "months" && monthlyQ.data) {
+  } else if (view === "years" && monthlyQ.data) {
     chartData = MONTH_NAMES.map((name, i) => {
       const stat = monthlyQ.data.find((d) => d.month === i + 1)
       return {
@@ -109,6 +109,12 @@ function IncomeExpenseLineChartInner() {
         expenses: (stat?.totalExpenses ?? 0) / 100,
       }
     })
+  } else if (view === "months" && dailyQ.data) {
+    chartData = dailyQ.data.map((d) => ({
+      name: String(d.day),
+      income: d.income / 100,
+      expenses: d.totalExpenses / 100,
+    }))
   }
 
   return (
@@ -130,17 +136,13 @@ function IncomeExpenseLineChartInner() {
                 tickFormatter={(v) => "$" + v.toLocaleString()}
                 tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
               />
-              <Tooltip formatter={(val: number | undefined) => val != null ? centsToDisplay(val * 100) : ""} />
+              <Tooltip
+                formatter={(val: number | undefined) => val != null ? centsToDisplay(val * 100) : ""}
+                itemSorter={(item) => (item.dataKey === "income" ? 0 : 1)}
+              />
               <Legend />
-              {view === "months" && (
-                <ReferenceLine
-                  x={MONTH_NAMES[month - 1]}
-                  stroke="rgba(255,255,255,0.25)"
-                  strokeDasharray="4 4"
-                />
-              )}
-              <Line dataKey="income" name="Income" stroke="#59FF24" dot={highlightDot("#59FF24")} strokeWidth={2} />
-              <Line dataKey="expenses" name="Expenses" stroke="#FF161A" dot={highlightDot("#FF161A")} strokeWidth={2} />
+              <Line dataKey="income" name="Income" stroke="#59FF24" dot={view !== "months"} strokeWidth={2} />
+              <Line dataKey="expenses" name="Expenses" stroke="#FF161A" dot={view !== "months"} strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>

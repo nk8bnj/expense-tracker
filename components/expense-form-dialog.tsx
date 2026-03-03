@@ -103,6 +103,7 @@ export function ExpenseFormDialog({ open, onOpenChange, year, month, expense }: 
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["expenses", year ?? null, month ?? null] })
+      queryClient.invalidateQueries({ queryKey: ["stats"] })
       onOpenChange(false)
       reset()
       resetMutation()
