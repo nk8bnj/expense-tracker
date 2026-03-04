@@ -4,9 +4,8 @@ import { Suspense } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { motion, useMotionValue, useSpring, useTransform } from "motion/react"
 import { useEffect } from "react"
-import { TrendingUp, TrendingDown, Wallet, Pencil } from "lucide-react"
-import { Card, CardHeader, CardTitle, CardContent, CardAction } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { TrendingUp, TrendingDown, Wallet } from "lucide-react"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { useMonthYearFilter } from "@/components/month-year-filter"
 import { centsToDisplay } from "@/lib/money"
 import { useCurrency } from "@/lib/currency-context"
@@ -62,7 +61,7 @@ const CARDS = [
   },
 ]
 
-function KpiCardsInner({ onEditIncome }: { onEditIncome?: () => void }) {
+function KpiCardsInner() {
   const { year, month, view } = useMonthYearFilter()
   const { currency } = useCurrency()
 
@@ -163,13 +162,6 @@ function KpiCardsInner({ onEditIncome }: { onEditIncome?: () => void }) {
                   <Icon className="size-4" style={{ color: accent }} />
                   {card.label}
                 </CardTitle>
-                {card.field === "income" && onEditIncome && view === "months" && (
-                  <CardAction>
-                    <Button variant="ghost" size="icon-sm" onClick={onEditIncome}>
-                      <Pencil className="size-3.5" />
-                    </Button>
-                  </CardAction>
-                )}
               </CardHeader>
               <CardContent>
                 <AnimatedAmount cents={value} isError={isError} currency={currency} />
@@ -182,7 +174,7 @@ function KpiCardsInner({ onEditIncome }: { onEditIncome?: () => void }) {
   )
 }
 
-export function KpiCards({ onEditIncome }: { onEditIncome?: () => void }) {
+export function KpiCards() {
   return (
     <Suspense
       fallback={
@@ -200,7 +192,7 @@ export function KpiCards({ onEditIncome }: { onEditIncome?: () => void }) {
         </div>
       }
     >
-      <KpiCardsInner onEditIncome={onEditIncome} />
+      <KpiCardsInner />
     </Suspense>
   )
 }

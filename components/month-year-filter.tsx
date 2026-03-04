@@ -19,7 +19,7 @@ const VIEW_OPTIONS = [
   { value: "months", label: "Months" },
 ] as const
 
-const MONTHS = [
+export const MONTHS = [
   { value: "1", label: "January" },
   { value: "2", label: "February" },
   { value: "3", label: "March" },
@@ -35,7 +35,7 @@ const MONTHS = [
 ]
 
 const YEAR_START = 2020
-const YEARS: number[] = []
+export const YEARS: number[] = []
 const currentYear = new Date().getFullYear()
 for (let y = YEAR_START; y <= currentYear; y++) {
   YEARS.push(y)
