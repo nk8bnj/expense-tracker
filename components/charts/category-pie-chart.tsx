@@ -16,8 +16,8 @@ type CategoryStat = {
 }
 
 const COLORS = [
-  "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7",
-  "#DDA0DD", "#98D8C8", "#F0A500", "#FF8B94", "#A8E6CF", "#B0B0B0",
+  "#6366f1", "#f43f5e", "#10b981", "#f59e0b", "#3b82f6",
+  "#ec4899", "#14b8a6", "#f97316", "#8b5cf6", "#84cc16", "#06b6d4",
 ]
 
 const skeleton = (
@@ -59,7 +59,7 @@ function CategoryPieChartInner() {
       >
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium">Spending by Category</CardTitle>
+            <CardTitle className="text-xs uppercase tracking-widest font-medium text-muted-foreground">Spending by Category</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex h-[300px] items-center justify-center text-sm text-muted-foreground">
@@ -79,7 +79,7 @@ function CategoryPieChartInner() {
     >
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm font-medium">Spending by Category</CardTitle>
+          <CardTitle className="text-xs uppercase tracking-widest font-medium text-muted-foreground">Spending by Category</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center gap-6">

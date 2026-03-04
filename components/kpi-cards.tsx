@@ -35,9 +35,9 @@ function AnimatedAmount({ cents, isError, currency }: { cents: number; isError: 
     motionVal.set(cents)
   }, [cents, motionVal])
 
-  if (isError) return <span className="text-2xl font-bold">—</span>
+  if (isError) return <span className="text-3xl font-bold">—</span>
 
-  return <motion.span className="text-2xl font-bold">{display}</motion.span>
+  return <motion.span className="text-3xl font-bold">{display}</motion.span>
 }
 
 const CARDS = [
@@ -45,19 +45,22 @@ const CARDS = [
     label: "Total Income",
     field: "income" as StatField,
     icon: TrendingUp,
-    color: "#59FF24",
+    iconClass: "text-emerald-500",
+    borderColor: "border-t-emerald-500/60",
   },
   {
     label: "Total Expenses",
     field: "totalExpenses" as StatField,
     icon: TrendingDown,
-    color: "#FF161A",
+    iconClass: "text-rose-500",
+    borderColor: "border-t-rose-500/60",
   },
   {
     label: "Net Balance",
     field: "balance" as StatField,
     icon: Wallet,
-    color: null, // dynamic
+    iconClass: "text-indigo-500",
+    borderColor: "border-t-indigo-500/60",
   },
 ]
 
@@ -138,9 +141,8 @@ function KpiCardsInner() {
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
       {CARDS.map((card, index) => {
         const value = stats[card.field] as number
-        const accent =
-          card.color ?? (value >= 0 ? "#59FF24" : "#FF161A")
         const Icon = card.icon
+        const isBalance = card.field === "balance"
 
         return (
           <motion.div
@@ -153,18 +155,17 @@ function KpiCardsInner() {
               ease: [0.25, 0.46, 0.45, 0.94],
             }}
           >
-            <Card
-              className="overflow-hidden"
-              style={{ borderTop: `3px solid ${accent}` }}
-            >
+            <Card className={`overflow-hidden transition-colors hover:bg-muted/20 border-t-2 ${card.borderColor}`}>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
-                  <Icon className="size-4" style={{ color: accent }} />
-                  {card.label}
+                <CardTitle className="flex items-center gap-2 text-muted-foreground">
+                  <Icon className={`size-4 ${card.iconClass}`} />
+                  <span className="text-xs uppercase tracking-widest font-medium">{card.label}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <AnimatedAmount cents={value} isError={isError} currency={currency} />
+                <span className={isBalance && value < 0 ? "text-muted-foreground" : undefined}>
+                  <AnimatedAmount cents={value} isError={isError} currency={currency} />
+                </span>
               </CardContent>
             </Card>
           </motion.div>

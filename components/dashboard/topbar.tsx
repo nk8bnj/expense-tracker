@@ -32,13 +32,13 @@ export function Topbar() {
   }
 
   return (
-    <header className="flex h-14 items-center gap-4 border-b border-border bg-background px-6 py-4">
+    <header className="flex h-12 items-center gap-4 border-b border-border bg-background/80 backdrop-blur-sm px-6 py-3">
       {/* Logo */}
       <div className="flex items-center gap-2.5 shrink-0">
-        <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary">
-          <TrendingUp className="size-4 text-primary-foreground" strokeWidth={2.5} />
+        <div className="flex h-7 w-7 items-center justify-center rounded-lg border-2 border-foreground/80">
+          <TrendingUp className="size-4 text-foreground" strokeWidth={2.5} />
         </div>
-        <span className="text-sm font-semibold tracking-tight text-foreground">
+        <span className="hidden sm:inline text-sm font-semibold tracking-tight text-foreground">
           Expense Tracker
         </span>
       </div>

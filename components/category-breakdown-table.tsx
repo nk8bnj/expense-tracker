@@ -28,7 +28,7 @@ function TableSkeleton() {
                   i === 0 ? "text-left" : "text-right"
                 )}
               >
-                {h}
+                <span className="tracking-widest">{h}</span>
               </th>
             ))}
           </tr>
@@ -105,7 +105,7 @@ export function CategoryBreakdownTable({ year, month }: CategoryBreakdownTablePr
                   i === 0 ? "text-left" : "text-right"
                 )}
               >
-                {h}
+                <span className="tracking-widest">{h}</span>
               </th>
             ))}
           </tr>
@@ -128,7 +128,7 @@ export function CategoryBreakdownTable({ year, month }: CategoryBreakdownTablePr
               return (
                 <tr
                   key={row.category}
-                  className="border-b last:border-0 hover:bg-muted/30 transition-colors"
+                  className="border-b last:border-0 hover:bg-muted/20 transition-colors"
                 >
                   <td className="px-4 py-3">
                     <span className="flex items-center gap-2">

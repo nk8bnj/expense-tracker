@@ -81,7 +81,7 @@ type ChartPoint = { name: string; income: number; totalExpenses: number }
 const skeleton = (
   <Card>
     <CardHeader>
-      <CardTitle className="text-sm font-medium">Income vs Expenses</CardTitle>
+      <CardTitle className="text-xs uppercase tracking-widest font-medium text-muted-foreground">Income vs Expenses</CardTitle>
     </CardHeader>
     <CardContent>
       <div className="h-[300px] animate-pulse rounded-lg bg-muted" />
@@ -163,18 +163,18 @@ function IncomeExpenseLineChartInner() {
     >
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm font-medium">Income vs Expenses</CardTitle>
+          <CardTitle className="text-xs uppercase tracking-widest font-medium text-muted-foreground">Income vs Expenses</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
             <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#4F8EF7" stopOpacity={0.2} />
-                  <stop offset="95%" stopColor="#4F8EF7" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#76D6B1" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="#76D6B1" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid horizontal={true} vertical={false} stroke="var(--border)" strokeDasharray="0" />
+              <CartesianGrid horizontal={true} vertical={false} stroke="var(--border)" strokeOpacity={0.7} strokeDasharray="0" />
               <XAxis
                 dataKey="name"
                 tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
@@ -187,32 +187,32 @@ function IncomeExpenseLineChartInner() {
                 dataKey="income"
                 name="Income"
                 type="monotone"
-                stroke="#4F8EF7"
+                stroke="#76D6B1"
                 strokeWidth={2.5}
                 fill="url(#incomeGradient)"
                 dot={false}
-                activeDot={{ r: 4, fill: "#4F8EF7", stroke: "var(--background)", strokeWidth: 2 }}
+                activeDot={{ r: 4, fill: "#76D6B1", stroke: "var(--background)", strokeWidth: 2 }}
               />
               <Line
                 dataKey="totalExpenses"
                 name="Expenses"
                 type="monotone"
-                stroke="#FF4444"
+                stroke="#f43f5e"
                 strokeWidth={1.5}
                 strokeDasharray="5 4"
                 dot={false}
-                activeDot={{ r: 3, fill: "#FF4444" }}
+                activeDot={{ r: 3, fill: "#f43f5e" }}
               />
             </AreaChart>
           </ResponsiveContainer>
           <div className="mt-3 flex flex-wrap justify-center gap-x-5 gap-y-1">
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <span className="inline-block h-[2.5px] w-5 rounded-full bg-[#4F8EF7]" />
+              <span className="inline-block h-[2.5px] w-5 rounded-full bg-[#76D6B1]" />
               Income
             </span>
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <svg width="20" height="3" viewBox="0 0 20 3" className="overflow-visible">
-                <line x1="0" y1="1.5" x2="20" y2="1.5" stroke="#FF4444" strokeWidth="1.5" strokeDasharray="5 4" />
+                <line x1="0" y1="1.5" x2="20" y2="1.5" stroke="#f43f5e" strokeWidth="1.5" strokeDasharray="5 4" />
               </svg>
               Expenses
             </span>

@@ -65,7 +65,7 @@ function IncomeFormWithContext({
 
 function EditIncomeButton({ onClick }: { onClick: () => void }) {
   return (
-    <Button variant="ghost" size="sm" onClick={onClick}>
+    <Button variant="outline" size="sm" onClick={onClick}>
       <Pencil className="size-3.5" />
       Add income
     </Button>
@@ -127,12 +127,9 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-2xl font-semibold">Dashboard</h1>
-            <EditIncomeButton onClick={() => handleOpenChange(true)} />
-          </div>
-          <p className="mt-1 text-sm text-muted-foreground">Welcome to your expense tracker.</p>
+        <div className="flex items-center gap-2">
+          <h1 className="text-xl font-medium tracking-tight">Dashboard</h1>
+          <EditIncomeButton onClick={() => handleOpenChange(true)} />
         </div>
         <MonthYearFilter />
       </div>
