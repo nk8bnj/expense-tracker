@@ -5,7 +5,8 @@ import { useQuery } from "@tanstack/react-query"
 import { motion } from "motion/react"
 import {
   ResponsiveContainer,
-  LineChart,
+  AreaChart,
+  Area,
   Line,
   XAxis,
   YAxis,
@@ -166,31 +167,55 @@ function IncomeExpenseLineChartInner() {
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
-              <XAxis dataKey="name" tick={{ fontSize: 12, fill: "var(--muted-foreground)" }} />
-              <YAxis
-                tickFormatter={(v) => symbol + v.toLocaleString()}
+            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#4F8EF7" stopOpacity={0.2} />
+                  <stop offset="95%" stopColor="#4F8EF7" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid horizontal={true} vertical={false} stroke="var(--border)" strokeDasharray="0" />
+              <XAxis
+                dataKey="name"
                 tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
+                axisLine={false}
+                tickLine={false}
               />
+              <YAxis hide={true} />
               <Tooltip content={<CustomTooltip currency={currency} />} />
-              <Line dataKey="income" name="Income" stroke="#59FF24" dot={view !== "months"} strokeWidth={2} />
-              <Line dataKey="totalExpenses" name="Expenses" stroke="#FF4444" dot={view !== "months"} strokeWidth={2} />
-            </LineChart>
+              <Area
+                dataKey="income"
+                name="Income"
+                type="monotone"
+                stroke="#4F8EF7"
+                strokeWidth={2.5}
+                fill="url(#incomeGradient)"
+                dot={false}
+                activeDot={{ r: 4, fill: "#4F8EF7", stroke: "var(--background)", strokeWidth: 2 }}
+              />
+              <Line
+                dataKey="totalExpenses"
+                name="Expenses"
+                type="monotone"
+                stroke="#FF4444"
+                strokeWidth={1.5}
+                strokeDasharray="5 4"
+                dot={false}
+                activeDot={{ r: 3, fill: "#FF4444" }}
+              />
+            </AreaChart>
           </ResponsiveContainer>
-          <div className="mt-2 flex flex-wrap justify-center gap-x-4 gap-y-1">
-            {[
-              { name: "Income", color: "#59FF24" },
-              { name: "Expenses", color: "#FF4444" },
-            ].map((item) => (
-              <span key={item.name} className="flex items-center gap-1 text-xs text-muted-foreground">
-                <span
-                  className="inline-block h-[2px] w-4 rounded-full"
-                  style={{ backgroundColor: item.color }}
-                />
-                {item.name}
-              </span>
-            ))}
+          <div className="mt-3 flex flex-wrap justify-center gap-x-5 gap-y-1">
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <span className="inline-block h-[2.5px] w-5 rounded-full bg-[#4F8EF7]" />
+              Income
+            </span>
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <svg width="20" height="3" viewBox="0 0 20 3" className="overflow-visible">
+                <line x1="0" y1="1.5" x2="20" y2="1.5" stroke="#FF4444" strokeWidth="1.5" strokeDasharray="5 4" />
+              </svg>
+              Expenses
+            </span>
           </div>
         </CardContent>
       </Card>
