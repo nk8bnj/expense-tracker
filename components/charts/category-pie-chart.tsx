@@ -7,6 +7,7 @@ import { PieChart, Pie, Cell, Tooltip } from "recharts"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { useMonthYearFilter } from "@/components/month-year-filter"
 import { centsToDisplay } from "@/lib/money"
+import { useCurrency } from "@/lib/currency-context"
 
 type CategoryStat = {
   category: string
@@ -32,6 +33,7 @@ const skeleton = (
 
 function CategoryPieChartInner() {
   const { year, month, view } = useMonthYearFilter()
+  const { currency } = useCurrency()
 
   const url =
     view === "total" ? `/api/stats/categories`
@@ -96,7 +98,7 @@ function CategoryPieChartInner() {
                 ))}
               </Pie>
               <Tooltip
-                formatter={(val: number | undefined) => val != null ? centsToDisplay(val) : ""}
+                formatter={(val: number | undefined) => val != null ? centsToDisplay(val, currency) : ""}
               />
             </PieChart>
 
@@ -108,7 +110,7 @@ function CategoryPieChartInner() {
                     style={{ backgroundColor: COLORS[i % COLORS.length] }}
                   />
                   <span className="text-xs text-muted-foreground">{entry.category}</span>
-                  <span className="text-xs font-medium">{centsToDisplay(entry.totalCents)}</span>
+                  <span className="text-xs font-medium">{centsToDisplay(entry.totalCents, currency)}</span>
                 </div>
               ))}
             </div>

@@ -7,6 +7,7 @@ import { MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 
 import { CATEGORIES } from "@/lib/categories"
 import { centsToDisplay } from "@/lib/money"
+import { useCurrency } from "@/lib/currency-context"
 import { ExpenseFormDialog } from "@/components/expense-form-dialog"
 import {
   AlertDialog,
@@ -81,6 +82,7 @@ function TableSkeleton() {
 
 export function ExpensesTable({ year, month }: { year?: number; month?: number }) {
   const queryClient = useQueryClient()
+  const { currency } = useCurrency()
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
   const [deletingExpense, setDeletingExpense] = useState<Expense | null>(null)
 
@@ -179,7 +181,7 @@ export function ExpensesTable({ year, month }: { year?: number; month?: number }
                       {expense.description ?? "—"}
                     </td>
                     <td className="px-4 py-3 text-right font-medium tabular-nums whitespace-nowrap">
-                      {centsToDisplay(expense.amountCents)}
+                      {centsToDisplay(expense.amountCents, currency)}
                     </td>
                     <td className="px-4 py-3 w-10">
                       <DropdownMenu>

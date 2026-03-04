@@ -9,6 +9,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardAction } from "@/componen
 import { Button } from "@/components/ui/button"
 import { useMonthYearFilter } from "@/components/month-year-filter"
 import { centsToDisplay } from "@/lib/money"
+import { useCurrency } from "@/lib/currency-context"
 
 type MonthStat = {
   month: number
@@ -26,10 +27,10 @@ type YearlyStat = {
 
 type StatField = "income" | "totalExpenses" | "balance"
 
-function AnimatedAmount({ cents, isError }: { cents: number; isError: boolean }) {
+function AnimatedAmount({ cents, isError, currency }: { cents: number; isError: boolean; currency: string }) {
   const motionVal = useMotionValue(cents)
   const spring = useSpring(motionVal, { stiffness: 120, damping: 20 })
-  const display = useTransform(spring, (v) => centsToDisplay(v))
+  const display = useTransform(spring, (v) => centsToDisplay(v, currency))
 
   useEffect(() => {
     motionVal.set(cents)
@@ -63,6 +64,7 @@ const CARDS = [
 
 function KpiCardsInner({ onEditIncome }: { onEditIncome?: () => void }) {
   const { year, month, view } = useMonthYearFilter()
+  const { currency } = useCurrency()
 
   const yearlyQuery = useQuery<YearlyStat[]>({
     queryKey: ["stats", "yearly"],
@@ -170,7 +172,7 @@ function KpiCardsInner({ onEditIncome }: { onEditIncome?: () => void }) {
                 )}
               </CardHeader>
               <CardContent>
-                <AnimatedAmount cents={value} isError={isError} />
+                <AnimatedAmount cents={value} isError={isError} currency={currency} />
               </CardContent>
             </Card>
           </motion.div>

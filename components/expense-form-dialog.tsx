@@ -7,6 +7,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { format } from "date-fns"
 
 import { CATEGORIES } from "@/lib/categories"
+import { useCurrency } from "@/lib/currency-context"
 import {
   Dialog,
   DialogContent,
@@ -57,6 +58,7 @@ type FormValues = z.infer<typeof schema>
 
 export function ExpenseFormDialog({ open, onOpenChange, year, month, expense }: Props) {
   const queryClient = useQueryClient()
+  const { symbol } = useCurrency()
 
   const {
     register,
@@ -128,7 +130,7 @@ export function ExpenseFormDialog({ open, onOpenChange, year, month, expense }: 
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <Field>
-            <FieldLabel>Amount ($)</FieldLabel>
+            <FieldLabel>Amount ({symbol})</FieldLabel>
             <Input
               type="number"
               step="0.01"

@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useCurrency } from "@/lib/currency-context"
 import { Field, FieldLabel, FieldError } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -26,6 +27,7 @@ type Props = {
 
 export function IncomeForm({ year, month, currentAmountCents, onSuccess }: Props) {
   const queryClient = useQueryClient()
+  const { symbol } = useCurrency()
 
   const {
     register,
@@ -61,7 +63,7 @@ export function IncomeForm({ year, month, currentAmountCents, onSuccess }: Props
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
       <Field>
-        <FieldLabel htmlFor="income-amount">Amount (USD)</FieldLabel>
+        <FieldLabel htmlFor="income-amount">Amount ({symbol})</FieldLabel>
         <Input
           id="income-amount"
           type="number"

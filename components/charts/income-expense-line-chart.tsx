@@ -11,12 +11,11 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  type TooltipProps,
 } from "recharts"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { useMonthYearFilter } from "@/components/month-year-filter"
 import { centsToDisplay } from "@/lib/money"
-import { CATEGORIES } from "@/lib/categories"
+import { useCurrency } from "@/lib/currency-context"
 
 type YearStat = {
   year: number
@@ -43,7 +42,18 @@ type DayStat = {
 
 const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
 
-function CustomTooltip({ active, payload, label }: TooltipProps<number, string>) {
+type TooltipPayload = {
+  active?: boolean
+  payload?: Array<{
+    value?: number
+    dataKey?: string | number
+    name?: string
+    color?: string
+  }>
+  label?: string
+}
+
+function CustomTooltip({ active, payload, label, currency }: TooltipPayload & { currency: string }) {
   if (!active || !payload?.length) return null
   const items = payload
     .filter((p) => (p.value ?? 0) > 0)
@@ -58,14 +68,14 @@ function CustomTooltip({ active, payload, label }: TooltipProps<number, string>)
       <p className="mb-1 font-medium text-foreground">{label}</p>
       {items.map((item) => (
         <p key={item.dataKey as string} style={{ color: item.color }} className="leading-5">
-          {item.name} : {centsToDisplay((item.value ?? 0) * 100)}
+          {item.name} : {centsToDisplay((item.value ?? 0) * 100, currency)}
         </p>
       ))}
     </div>
   )
 }
 
-type ChartPoint = { name: string; income: number; totalExpenses: number } & Record<string, number>
+type ChartPoint = { name: string; income: number; totalExpenses: number }
 
 const skeleton = (
   <Card>
@@ -80,6 +90,7 @@ const skeleton = (
 
 function IncomeExpenseLineChartInner() {
   const { year, month, view } = useMonthYearFilter()
+  const { currency, symbol } = useCurrency()
 
   const yearlyQ = useQuery<YearStat[]>({
     queryKey: ["stats", "yearly"],
@@ -125,7 +136,6 @@ function IncomeExpenseLineChartInner() {
       name: String(d.year),
       income: d.totalIncome / 100,
       totalExpenses: d.totalExpenses / 100,
-      ...Object.fromEntries(Object.entries(d.categories ?? {}).map(([k, v]) => [k, v / 100])),
     }))
   } else if (view === "years" && monthlyQ.data) {
     chartData = MONTH_NAMES.map((name, i) => {
@@ -134,7 +144,6 @@ function IncomeExpenseLineChartInner() {
         name,
         income: (stat?.income ?? 0) / 100,
         totalExpenses: (stat?.totalExpenses ?? 0) / 100,
-        ...Object.fromEntries(Object.entries(stat?.categories ?? {}).map(([k, v]) => [k, v / 100])),
       }
     })
   } else if (view === "months" && dailyQ.data) {
@@ -142,22 +151,7 @@ function IncomeExpenseLineChartInner() {
       name: String(d.day),
       income: d.income / 100,
       totalExpenses: d.totalExpenses / 100,
-      ...Object.fromEntries(Object.entries(d.categories ?? {}).map(([k, v]) => [k, v / 100])),
     }))
-  }
-
-  const makeDot = (catValue: string, stroke: string) => {
-    if (view !== "months") return true as const
-    return (props: { cx: number; cy: number; index: number }) => {
-      const { cx, cy, index } = props
-      const curr = (chartData[index]?.[catValue] as number | undefined) ?? 0
-      const prev = (chartData[index - 1]?.[catValue] as number | undefined) ?? 0
-      const next = (chartData[index + 1]?.[catValue] as number | undefined) ?? 0
-      if (curr > 0 && prev === 0 && next === 0) {
-        return <circle key={`dot-${catValue}-${index}`} cx={cx} cy={cy} r={4} fill={stroke} stroke="none" />
-      }
-      return null
-    }
   }
 
   return (
@@ -176,22 +170,18 @@ function IncomeExpenseLineChartInner() {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />
               <XAxis dataKey="name" tick={{ fontSize: 12, fill: "var(--muted-foreground)" }} />
               <YAxis
-                tickFormatter={(v) => "$" + v.toLocaleString()}
+                tickFormatter={(v) => symbol + v.toLocaleString()}
                 tick={{ fontSize: 12, fill: "var(--muted-foreground)" }}
               />
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<CustomTooltip currency={currency} />} />
               <Line dataKey="income" name="Income" stroke="#59FF24" dot={view !== "months"} strokeWidth={2} />
-              <Line dataKey="totalExpenses" name="Total Expenses" stroke="#FF4444" dot={view !== "months"} strokeWidth={2} />
-              {CATEGORIES.map((cat) => (
-                <Line key={cat.value} dataKey={cat.value} name={cat.label} stroke={cat.color} dot={makeDot(cat.value, cat.color)} strokeWidth={2} connectNulls />
-              ))}
+              <Line dataKey="totalExpenses" name="Expenses" stroke="#FF4444" dot={view !== "months"} strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
           <div className="mt-2 flex flex-wrap justify-center gap-x-4 gap-y-1">
             {[
               { name: "Income", color: "#59FF24" },
-              { name: "Total Expenses", color: "#FF4444" },
-              ...CATEGORIES.map((cat) => ({ name: cat.label, color: cat.color })),
+              { name: "Expenses", color: "#FF4444" },
             ].map((item) => (
               <span key={item.name} className="flex items-center gap-1 text-xs text-muted-foreground">
                 <span

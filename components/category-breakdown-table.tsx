@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import { cn } from "@/lib/utils"
 import { centsToDisplay } from "@/lib/money"
 import { CATEGORIES } from "@/lib/categories"
+import { useCurrency } from "@/lib/currency-context"
 
 type CategoryStat = {
   category: string
@@ -61,6 +62,7 @@ interface CategoryBreakdownTableProps {
 }
 
 export function CategoryBreakdownTable({ year, month }: CategoryBreakdownTableProps) {
+  const { currency } = useCurrency()
   const url = !year
     ? `/api/stats/categories`
     : month
@@ -138,7 +140,7 @@ export function CategoryBreakdownTable({ year, month }: CategoryBreakdownTablePr
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap">
-                    {centsToDisplay(row.totalCents)}
+                    {centsToDisplay(row.totalCents, currency)}
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap text-muted-foreground">
                     {row.percentage.toFixed(1)}%
