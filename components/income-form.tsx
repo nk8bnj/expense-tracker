@@ -51,7 +51,7 @@ export function IncomeForm({ year, month, currentAmountCents, onSuccess }: Props
       return res.json()
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["stats", "monthly", year] })
+      queryClient.invalidateQueries({ queryKey: ["stats"] })
       onSuccess?.()
     },
   })
