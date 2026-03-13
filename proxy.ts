@@ -4,7 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 // the Node.js-only Prisma adapter used in lib/auth.ts. We do a lightweight
 // cookie-presence check here to guard navigation; full session validation
 // is enforced inside each protected API route and server component.
-const SESSION_COOKIE = "better-auth.session_token";
+const SESSION_COOKIE_DEV = "better-auth.session_token";
+const SESSION_COOKIE_PROD = "__Secure-better-auth.session_token";
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -13,7 +14,9 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const sessionCookie = request.cookies.get(SESSION_COOKIE);
+  const sessionCookie =
+    request.cookies.get(SESSION_COOKIE_DEV) ??
+    request.cookies.get(SESSION_COOKIE_PROD);
 
   if (!sessionCookie) {
     const loginUrl = new URL("/login", request.url);
