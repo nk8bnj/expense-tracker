@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { LogOut, TrendingUp } from "lucide-react"
 
 import { useSession, signOut } from "@/lib/auth-client"
-import { useCurrency, CURRENCY_SYMBOLS, type Currency } from "@/lib/currency-context"
+import { useCurrency, type Currency } from "@/lib/currency-context"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"

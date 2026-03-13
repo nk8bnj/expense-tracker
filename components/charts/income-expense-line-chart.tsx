@@ -91,7 +91,7 @@ const skeleton = (
 
 function IncomeExpenseLineChartInner() {
   const { year, month, view } = useMonthYearFilter()
-  const { currency, symbol } = useCurrency()
+  const { currency } = useCurrency()
 
   const yearlyQ = useQuery<YearStat[]>({
     queryKey: ["stats", "yearly"],
