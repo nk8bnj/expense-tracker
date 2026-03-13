@@ -109,7 +109,7 @@ function DashboardExpensesSection() {
   )
 }
 
-export default function DashboardPage() {
+function DashboardContent() {
   const [editIncomeOpen, setEditIncomeOpen] = useState(false)
   const now = new Date()
   const [selectedYear, setSelectedYear] = useState(now.getFullYear())
@@ -180,5 +180,13 @@ export default function DashboardPage() {
         <DashboardExpensesSection />
       </Suspense>
     </div>
+  )
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<div className="flex flex-col gap-6 animate-pulse" />}>
+      <DashboardContent />
+    </Suspense>
   )
 }
