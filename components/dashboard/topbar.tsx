@@ -28,7 +28,7 @@ export function Topbar() {
   async function handleSignOut() {
     setIsSigningOut(true)
     await signOut()
-    router.push("/login")
+    router.push("/")
   }
 
   return (

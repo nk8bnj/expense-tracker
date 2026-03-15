@@ -7,8 +7,22 @@ import { NextRequest, NextResponse } from "next/server";
 const SESSION_COOKIE_DEV = "better-auth.session_token";
 const SESSION_COOKIE_PROD = "__Secure-better-auth.session_token";
 
+const AUTH_PAGES = ["/", "/login", "/signup"];
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  if (AUTH_PAGES.includes(pathname)) {
+    const sessionCookie =
+      request.cookies.get(SESSION_COOKIE_DEV) ??
+      request.cookies.get(SESSION_COOKIE_PROD);
+
+    if (sessionCookie) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+
+    return NextResponse.next();
+  }
 
   if (!pathname.startsWith("/dashboard")) {
     return NextResponse.next();
@@ -28,5 +42,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ["/", "/login", "/signup", "/dashboard/:path*"],
 };
