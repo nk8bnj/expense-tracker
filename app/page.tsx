@@ -45,6 +45,76 @@ function BackgroundGraphics() {
         }}
       />
 
+      {/* Income/expense area chart — spans center, behind hero text */}
+      <svg
+        className="absolute inset-0 h-full w-full"
+        viewBox="0 0 1440 900"
+        preserveAspectRatio="xMidYMid slice"
+        aria-hidden="true"
+      >
+        {/* Area fill under income curve */}
+        <path
+          d="M -40 780 C 80 760, 140 700, 220 660 C 300 620, 330 700, 390 640 C 450 580, 470 500, 530 470 C 590 440, 620 520, 690 480 C 760 440, 790 360, 870 330 C 950 300, 980 390, 1060 350 C 1140 310, 1170 230, 1260 210 C 1350 190, 1420 250, 1480 220 L 1480 900 L -40 900 Z"
+          fill="#76D6B1"
+          fillOpacity="0.06"
+        />
+        {/* Income line */}
+        <path
+          d="M -40 780 C 80 760, 140 700, 220 660 C 300 620, 330 700, 390 640 C 450 580, 470 500, 530 470 C 590 440, 620 520, 690 480 C 760 440, 790 360, 870 330 C 950 300, 980 390, 1060 350 C 1140 310, 1170 230, 1260 210 C 1350 190, 1420 250, 1480 220"
+          fill="none"
+          stroke="#76D6B1"
+          strokeWidth="1.5"
+          strokeOpacity="0.20"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        {/* Expense line — dashed, slightly below income */}
+        <path
+          d="M -40 820 C 100 800, 160 760, 240 730 C 320 700, 360 760, 420 720 C 480 680, 510 620, 580 600 C 650 580, 680 640, 750 610 C 820 580, 860 510, 940 490 C 1020 470, 1050 540, 1130 510 C 1210 480, 1250 410, 1340 400 C 1410 392, 1450 440, 1480 430"
+          fill="none"
+          stroke="#f43f5e"
+          strokeWidth="1"
+          strokeOpacity="0.13"
+          strokeDasharray="6 4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+
+      {/* Category donut chart — bottom-right corner, 4 colored segments */}
+      <svg
+        className="absolute bottom-0 right-0"
+        width="500"
+        height="500"
+        viewBox="0 0 500 500"
+        aria-hidden="true"
+      >
+        {/* Indigo segment: 185°→212° */}
+        <path
+          d="M 181.2 472.1 A 320 320 0 0 1 228.7 330.4 L 322.1 388.7 A 210 210 0 0 0 290.9 481.7 Z"
+          fill="#6366f1"
+          fillOpacity="0.18"
+        />
+        {/* Rose segment: 214°→237° */}
+        <path
+          d="M 234.7 321.1 A 320 320 0 0 1 325.7 231.6 L 385.6 323.9 A 210 210 0 0 0 325.9 382.6 Z"
+          fill="#f43f5e"
+          fillOpacity="0.18"
+        />
+        {/* Emerald segment: 239°→257° */}
+        <path
+          d="M 335.2 225.9 A 320 320 0 0 1 428.0 188.2 L 452.8 295.4 A 210 210 0 0 0 391.8 320.0 Z"
+          fill="#10b981"
+          fillOpacity="0.18"
+        />
+        {/* Amber segment: 259°→270° */}
+        <path
+          d="M 438.9 185.9 A 320 320 0 0 1 500.0 180.0 L 500.0 290.0 A 210 210 0 0 0 459.9 293.9 Z"
+          fill="#f59e0b"
+          fillOpacity="0.18"
+        />
+      </svg>
+
       {/* Top vignette — keeps hero headline readable */}
       <div
         className="absolute inset-0"
