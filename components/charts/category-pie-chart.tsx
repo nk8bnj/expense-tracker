@@ -8,6 +8,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { useMonthYearFilter } from "@/components/month-year-filter"
 import { centsToDisplay } from "@/lib/money"
 import { useCurrency } from "@/lib/currency-context"
+import { CATEGORIES } from "@/lib/categories"
 
 type CategoryStat = {
   category: string
@@ -15,10 +16,7 @@ type CategoryStat = {
   percentage: number
 }
 
-const COLORS = [
-  "#6366f1", "#f43f5e", "#10b981", "#f59e0b", "#3b82f6",
-  "#ec4899", "#14b8a6", "#f97316", "#8b5cf6", "#84cc16", "#06b6d4",
-]
+const FALLBACK_COLOR = "#A0AAAA"
 
 const skeleton = (
   <Card>
@@ -93,8 +91,8 @@ function CategoryPieChartInner() {
                 innerRadius={60}
                 outerRadius={100}
               >
-                {data.map((_, i) => (
-                  <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                {data.map((entry, i) => (
+                  <Cell key={i} fill={CATEGORIES.find(c => c.value === entry.category)?.color ?? FALLBACK_COLOR} />
                 ))}
               </Pie>
               <Tooltip
@@ -105,11 +103,11 @@ function CategoryPieChartInner() {
             <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
               {data.map((entry, i) => (
                 <div key={entry.category} className="flex items-center gap-1.5">
+                  <span className="text-xs text-muted-foreground">{CATEGORIES.find(c => c.value === entry.category)?.label ?? entry.category}</span>
                   <span
                     className="h-2.5 w-2.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: COLORS[i % COLORS.length] }}
+                    style={{ backgroundColor: CATEGORIES.find(c => c.value === entry.category)?.color ?? FALLBACK_COLOR }}
                   />
-                  <span className="text-xs text-muted-foreground">{entry.category}</span>
                   <span className="text-xs font-medium">{centsToDisplay(entry.totalCents, currency)}</span>
                 </div>
               ))}

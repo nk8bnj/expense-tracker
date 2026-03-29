@@ -132,11 +132,11 @@ export function CategoryBreakdownTable({ year, month }: CategoryBreakdownTablePr
                 >
                   <td className="px-4 py-3">
                     <span className="flex items-center gap-2">
+                      {cat?.label ?? row.category}
                       <span
                         className="h-2.5 w-2.5 rounded-full shrink-0"
                         style={{ backgroundColor: color }}
                       />
-                      {row.category}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap">

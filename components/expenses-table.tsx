@@ -170,11 +170,11 @@ export function ExpensesTable({ year, month }: { year?: number; month?: number }
                     </td>
                     <td className="px-4 py-3">
                       <span className="flex items-center gap-1.5">
+                        {cat?.label ?? expense.category}
                         <span
                           className="h-2 w-2 rounded-full shrink-0"
                           style={{ backgroundColor: cat?.color ?? "#B0B0B0" }}
                         />
-                        {expense.category}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-muted-foreground">

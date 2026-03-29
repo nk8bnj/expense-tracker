@@ -1,15 +1,17 @@
 export const CATEGORIES = [
-  { value: "Rent / Housing",  label: "Rent / Housing",  color: "#FF6B6B" },
-  { value: "Groceries",       label: "Groceries",       color: "#4ECDC4" },
-  { value: "Utilities",       label: "Utilities",       color: "#45B7D1" },
-  { value: "Food & Dining",   label: "Food & Dining",   color: "#96CEB4" },
-  { value: "Subscriptions",   label: "Subscriptions",   color: "#FFEAA7" },
-  { value: "Transportation",  label: "Transportation",  color: "#DDA0DD" },
-  { value: "Shopping",        label: "Shopping",        color: "#98D8C8" },
-  { value: "Healthcare",      label: "Healthcare",      color: "#F0A500" },
-  { value: "Entertainment",   label: "Entertainment",   color: "#FF8B94" },
-  { value: "Travel",          label: "Travel",          color: "#A8E6CF" },
-  { value: "Other",           label: "Other",           color: "#B0B0B0" },
+  { value: "Rent / Housing",  label: "🏠 Rent / Housing",  color: "#C4826E" },
+  { value: "Groceries",       label: "🛒 Groceries",        color: "#6FA87A" },
+  { value: "Utilities",       label: "⚡ Utilities",         color: "#D4B95A" },
+  { value: "Food & Dining",   label: "🍽 Food & Dining",    color: "#D4956A" },
+  { value: "Subscriptions",   label: "📋 Subscriptions",    color: "#9B85C0" },
+  { value: "Transportation",  label: "🚗 Transportation",   color: "#6A9BB8" },
+  { value: "Shopping",        label: "🛍 Shopping",          color: "#C47EA8" },
+  { value: "Healthcare",      label: "💊 Healthcare",        color: "#5FA898" },
+  { value: "Entertainment",   label: "🎮 Entertainment",    color: "#C4855A" },
+  { value: "Travel",          label: "✈️ Travel",            color: "#6AB8C8" },
+  { value: "Savings",         label: "💰 Savings",           color: "#B5A97A" },
+  { value: "Charity",         label: "🤝 Charity",           color: "#C47878" },
+  { value: "Other",           label: "❓ Other",             color: "#A0AAAA" },
 ] as const
 
 export type Category = typeof CATEGORIES[number]

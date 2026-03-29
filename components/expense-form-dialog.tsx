@@ -155,11 +155,11 @@ export function ExpenseFormDialog({ open, onOpenChange, year, month, expense }: 
                     {CATEGORIES.map(cat => (
                       <SelectItem key={cat.value} value={cat.value}>
                         <span className="flex items-center gap-2">
+                          {cat.label}
                           <span
                             className="h-2.5 w-2.5 rounded-full shrink-0"
                             style={{ backgroundColor: cat.color }}
                           />
-                          {cat.label}
                         </span>
                       </SelectItem>
                     ))}
