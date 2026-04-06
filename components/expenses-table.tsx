@@ -80,7 +80,7 @@ function TableSkeleton() {
   )
 }
 
-export function ExpensesTable({ year, month }: { year?: number; month?: number }) {
+export function ExpensesTable({ year, month, category }: { year?: number; month?: number; category?: string }) {
   const queryClient = useQueryClient()
   const { currency } = useCurrency()
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
@@ -96,6 +96,10 @@ export function ExpensesTable({ year, month }: { year?: number; month?: number }
     queryKey: ["expenses", year ?? null, month ?? null],
     queryFn: () => fetch(url).then(r => r.json()),
   })
+
+  const filtered = category
+    ? (expenses ?? []).filter(e => e.category === category)
+    : (expenses ?? [])
 
   const { mutate: deleteExpense, isPending: isDeleting } = useMutation({
     mutationFn: (id: string) =>
@@ -148,7 +152,7 @@ export function ExpensesTable({ year, month }: { year?: number; month?: number }
             </tr>
           </thead>
           <tbody>
-            {!expenses || expenses.length === 0 ? (
+            {filtered.length === 0 ? (
               <tr>
                 <td
                   colSpan={5}
@@ -158,7 +162,7 @@ export function ExpensesTable({ year, month }: { year?: number; month?: number }
                 </td>
               </tr>
             ) : (
-              expenses.map(expense => {
+              filtered.map(expense => {
                 const cat = CATEGORIES.find(c => c.value === expense.category)
                 return (
                   <tr

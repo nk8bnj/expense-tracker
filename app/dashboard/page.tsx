@@ -7,6 +7,7 @@ import { KpiCards } from "@/components/kpi-cards"
 import { IncomeExpenseLineChart } from "@/components/charts/income-expense-line-chart"
 import { CategoryPieChart } from "@/components/charts/category-pie-chart"
 import { MonthYearFilter, useMonthYearFilter, YEARS, MONTHS } from "@/components/month-year-filter"
+import { CATEGORIES, type CategoryValue } from "@/lib/categories"
 import {
   Dialog,
   DialogContent,
@@ -85,19 +86,36 @@ function CategoryBreakdownSection() {
 function DashboardExpensesSection() {
   const { year, month, view } = useMonthYearFilter()
   const [addOpen, setAddOpen] = useState(false)
+  const [category, setCategory] = useState<CategoryValue | "all">("all")
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Expenses</h2>
-        <Button size="sm" onClick={() => setAddOpen(true)}>
-          <Plus />
-          Add Expense
-        </Button>
+        <div className="flex items-center gap-2">
+          <Select value={category} onValueChange={(v) => setCategory(v as CategoryValue | "all")}>
+            <SelectTrigger size="sm" className="w-[160px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All categories</SelectItem>
+              {CATEGORIES.map((cat) => (
+                <SelectItem key={cat.value} value={cat.value}>
+                  {cat.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button size="sm" onClick={() => setAddOpen(true)}>
+            <Plus />
+            Add Expense
+          </Button>
+        </div>
       </div>
       <ExpensesTable
         year={view !== "total" ? year : undefined}
         month={view === "months" ? month : undefined}
+        category={category === "all" ? undefined : category}
       />
       <ExpenseFormDialog
         open={addOpen}
