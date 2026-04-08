@@ -90,11 +90,11 @@ function DashboardExpensesSection() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-lg font-semibold">Expenses</h2>
         <div className="flex items-center gap-2">
           <Select value={category} onValueChange={(v) => setCategory(v as CategoryValue | "all")}>
-            <SelectTrigger size="sm" className="w-[160px]">
+            <SelectTrigger size="sm" className="flex-1 sm:w-[160px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -106,7 +106,7 @@ function DashboardExpensesSection() {
               ))}
             </SelectContent>
           </Select>
-          <Button size="sm" onClick={() => setAddOpen(true)}>
+          <Button size="sm" onClick={() => setAddOpen(true)} className="shrink-0">
             <Plus />
             Add Expense
           </Button>
@@ -144,7 +144,7 @@ function DashboardContent() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-center gap-2">
           <h1 className="text-xl font-medium tracking-tight">Dashboard</h1>
           <EditIncomeButton onClick={() => handleOpenChange(true)} />

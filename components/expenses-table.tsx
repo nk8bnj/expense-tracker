@@ -42,41 +42,56 @@ const TABLE_HEADERS = ["Date", "Category", "Description", "Amount", ""]
 
 function TableSkeleton() {
   return (
-    <div className="rounded-lg border overflow-hidden">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b bg-muted/50">
-            {TABLE_HEADERS.map((h, i) => (
-              <th
-                key={i}
-                className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide last:w-10"
-              >
-                {h}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {Array.from({ length: 5 }).map((_, i) => (
-            <tr key={i} className="border-b last:border-0">
-              <td className="px-4 py-3">
-                <div className="h-4 w-24 rounded bg-muted animate-pulse" />
-              </td>
-              <td className="px-4 py-3">
-                <div className="h-4 w-28 rounded bg-muted animate-pulse" />
-              </td>
-              <td className="px-4 py-3">
-                <div className="h-4 w-40 rounded bg-muted animate-pulse" />
-              </td>
-              <td className="px-4 py-3">
-                <div className="h-4 w-16 rounded bg-muted animate-pulse ml-auto" />
-              </td>
-              <td className="px-4 py-3 w-10" />
+    <>
+      {/* Mobile skeleton */}
+      <div className="sm:hidden rounded-lg border overflow-hidden divide-y">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="flex items-start justify-between px-4 py-3">
+            <div className="flex flex-col gap-1.5 flex-1">
+              <div className="h-4 w-28 rounded bg-muted animate-pulse" />
+              <div className="h-3 w-20 rounded bg-muted animate-pulse" />
+            </div>
+            <div className="h-4 w-16 rounded bg-muted animate-pulse ml-3" />
+          </div>
+        ))}
+      </div>
+      {/* Desktop skeleton */}
+      <div className="hidden sm:block rounded-lg border overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b bg-muted/50">
+              {TABLE_HEADERS.map((h, i) => (
+                <th
+                  key={i}
+                  className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide last:w-10"
+                >
+                  {h}
+                </th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <tr key={i} className="border-b last:border-0">
+                <td className="px-4 py-3">
+                  <div className="h-4 w-24 rounded bg-muted animate-pulse" />
+                </td>
+                <td className="px-4 py-3">
+                  <div className="h-4 w-28 rounded bg-muted animate-pulse" />
+                </td>
+                <td className="px-4 py-3">
+                  <div className="h-4 w-40 rounded bg-muted animate-pulse" />
+                </td>
+                <td className="px-4 py-3">
+                  <div className="h-4 w-16 rounded bg-muted animate-pulse ml-auto" />
+                </td>
+                <td className="px-4 py-3 w-10" />
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </>
   )
 }
 
@@ -116,20 +131,6 @@ export function ExpensesTable({ year, month, category }: { year?: number; month?
   if (isError) {
     return (
       <div className="rounded-lg border overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b bg-muted/50">
-              {TABLE_HEADERS.map((h, i) => (
-                <th
-                  key={i}
-                  className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide last:w-10"
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-        </table>
         <p className="px-4 py-6 text-sm text-muted-foreground">Failed to load expenses.</p>
       </div>
     )
@@ -137,7 +138,66 @@ export function ExpensesTable({ year, month, category }: { year?: number; month?
 
   return (
     <>
-      <div className="rounded-lg border overflow-hidden">
+      {/* Mobile card view */}
+      <div className="sm:hidden rounded-lg border overflow-hidden">
+        {filtered.length === 0 ? (
+          <p className="px-4 py-10 text-center text-sm text-muted-foreground">No expenses yet.</p>
+        ) : (
+          <div className="divide-y">
+            {filtered.map(expense => {
+              const cat = CATEGORIES.find(c => c.value === expense.category)
+              return (
+                <div
+                  key={expense.id}
+                  className="flex items-start justify-between px-4 py-3 hover:bg-muted/30 transition-colors"
+                >
+                  <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-sm font-medium">{cat?.label ?? expense.category}</span>
+                      <span
+                        className="h-2 w-2 rounded-full shrink-0"
+                        style={{ backgroundColor: cat?.color ?? "#B0B0B0" }}
+                      />
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {format(new Date(expense.date), "MMM d, yyyy")}
+                    </span>
+                    {expense.description && (
+                      <span className="text-xs text-muted-foreground truncate">{expense.description}</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 ml-3 shrink-0">
+                    <span className="text-sm font-medium tabular-nums">
+                      {centsToDisplay(expense.amountCents, currency)}
+                    </span>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground">
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Actions</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setEditingExpense(expense)}>
+                          <Pencil />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem variant="destructive" onClick={() => setDeletingExpense(expense)}>
+                          <Trash2 />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Desktop table view */}
+      <div className="hidden sm:block rounded-lg border overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b bg-muted/50">

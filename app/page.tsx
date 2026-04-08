@@ -186,7 +186,7 @@ export default function LandingPage() {
         {/* Feature hint row — anchored to bottom */}
         <motion.div
           {...fadeUp(0.28)}
-          className="hidden sm:flex items-center justify-center gap-8 px-6 pb-10 md:gap-12"
+          className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 px-6 pb-6 sm:gap-x-8 sm:pb-10 md:gap-x-12"
         >
           {hints.map(({ icon: Icon, label, color }) => (
             <div key={label} className="flex items-center gap-2 text-muted-foreground">

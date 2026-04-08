@@ -43,10 +43,12 @@ for (let y = YEAR_START; y <= currentYear; y++) {
 
 function MonthYearFilterSkeleton() {
   return (
-    <div className="flex items-center gap-2">
-      <div className="h-8 w-[120px] animate-pulse rounded-md bg-muted" />
-      <div className="h-8 w-[90px] animate-pulse rounded-md bg-muted" />
-      <div className="h-8 w-[130px] animate-pulse rounded-md bg-muted" />
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+      <div className="h-8 w-full sm:w-[120px] animate-pulse rounded-md bg-muted" />
+      <div className="flex gap-2">
+        <div className="h-8 flex-1 sm:w-[90px] animate-pulse rounded-md bg-muted" />
+        <div className="h-8 flex-1 sm:w-[130px] animate-pulse rounded-md bg-muted" />
+      </div>
     </div>
   )
 }
@@ -69,14 +71,14 @@ function MonthYearFilterInner({ className }: { className?: string }) {
   }
 
   return (
-    <div className={cn("flex items-center gap-2", className)}>
+    <div className={cn("flex flex-col gap-2 sm:flex-row sm:items-center", className)}>
       <div className="flex h-8 rounded-md border border-border bg-muted p-0.5 gap-0.5">
         {VIEW_OPTIONS.map((opt) => (
           <button
             key={opt.value}
             onClick={() => updateParam("view", opt.value)}
             className={cn(
-              "rounded px-2.5 text-sm font-medium transition-colors",
+              "flex-1 sm:flex-none rounded px-2.5 text-sm font-medium transition-colors",
               view === opt.value
                 ? "bg-background text-foreground shadow-xs"
                 : "text-muted-foreground hover:text-foreground"
@@ -87,31 +89,33 @@ function MonthYearFilterInner({ className }: { className?: string }) {
         ))}
       </div>
 
-      <Select value={year} onValueChange={(v) => updateParam("year", v)} disabled={view === "total"}>
-        <SelectTrigger size="sm" className="w-[90px]">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {YEARS.map((y) => (
-            <SelectItem key={y} value={String(y)}>
-              {y}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <div className="flex gap-2">
+        <Select value={year} onValueChange={(v) => updateParam("year", v)} disabled={view === "total"}>
+          <SelectTrigger size="sm" className="flex-1 sm:w-[90px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {YEARS.map((y) => (
+              <SelectItem key={y} value={String(y)}>
+                {y}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-      <Select value={month} onValueChange={(v) => updateParam("month", v)} disabled={view === "total" || view === "years"}>
-        <SelectTrigger size="sm" className="w-[130px]">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {MONTHS.map((m) => (
-            <SelectItem key={m.value} value={m.value}>
-              {m.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        <Select value={month} onValueChange={(v) => updateParam("month", v)} disabled={view === "total" || view === "years"}>
+          <SelectTrigger size="sm" className="flex-1 sm:w-[130px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {MONTHS.map((m) => (
+              <SelectItem key={m.value} value={m.value}>
+                {m.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   )
 }

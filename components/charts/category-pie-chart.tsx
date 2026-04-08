@@ -3,7 +3,7 @@
 import { Suspense } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { motion } from "motion/react"
-import { PieChart, Pie, Cell, Tooltip } from "recharts"
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { useMonthYearFilter } from "@/components/month-year-filter"
 import { centsToDisplay } from "@/lib/money"
@@ -80,25 +80,29 @@ function CategoryPieChartInner() {
           <CardTitle className="text-xs uppercase tracking-widest font-medium text-muted-foreground">Spending by Category</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col items-center gap-6">
-            <PieChart width={240} height={240}>
-              <Pie
-                data={data}
-                dataKey="totalCents"
-                nameKey="category"
-                cx="50%"
-                cy="50%"
-                innerRadius={60}
-                outerRadius={100}
-              >
-                {data.map((entry, i) => (
-                  <Cell key={i} fill={CATEGORIES.find(c => c.value === entry.category)?.color ?? FALLBACK_COLOR} />
-                ))}
-              </Pie>
-              <Tooltip
-                formatter={(val: number | undefined) => val != null ? centsToDisplay(val, currency) : ""}
-              />
-            </PieChart>
+          <div className="flex flex-col items-center gap-6 w-full">
+            <div className="w-full max-w-[240px]" style={{ height: 240 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={data}
+                    dataKey="totalCents"
+                    nameKey="category"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                  >
+                    {data.map((entry, i) => (
+                      <Cell key={i} fill={CATEGORIES.find(c => c.value === entry.category)?.color ?? FALLBACK_COLOR} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(val: number | undefined) => val != null ? centsToDisplay(val, currency) : ""}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
 
             <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
               {data.map((entry, i) => (
