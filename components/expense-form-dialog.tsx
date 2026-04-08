@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -77,6 +78,19 @@ export function ExpenseFormDialog({ open, onOpenChange, year, month, expense }: 
         : format(new Date(), "yyyy-MM-dd"),
     },
   })
+
+  useEffect(() => {
+    if (open) {
+      reset({
+        amount: expense ? (expense.amountCents / 100).toFixed(2) : "",
+        category: expense ? expense.category : undefined,
+        description: expense ? (expense.description ?? "") : "",
+        date: expense
+          ? format(new Date(expense.date), "yyyy-MM-dd")
+          : format(new Date(), "yyyy-MM-dd"),
+      })
+    }
+  }, [open, expense])
 
   const { mutate, isPending, isError, error, reset: resetMutation } = useMutation({
     mutationFn: async (values: FormValues) => {
