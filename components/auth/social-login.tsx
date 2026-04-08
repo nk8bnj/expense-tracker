@@ -1,6 +1,9 @@
+"use client"
+
 import Link from "next/link"
 import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useLocale } from "@/lib/locale-context"
 
 interface SocialLoginProps {
   onSocialLogin: (provider: "google" | "github") => void
@@ -8,6 +11,8 @@ interface SocialLoginProps {
 }
 
 export function SocialLogin({ onSocialLogin, loading }: SocialLoginProps) {
+  const { t } = useLocale()
+
   return (
     <>
       <div className="relative my-6">
@@ -16,7 +21,7 @@ export function SocialLogin({ onSocialLogin, loading }: SocialLoginProps) {
         </div>
         <div className="relative flex justify-center text-sm">
           <span className="bg-background px-3 text-muted-foreground">
-            Or continue with
+            {t("auth.common.orContinueWith")}
           </span>
         </div>
       </div>
@@ -75,19 +80,19 @@ export function SocialLogin({ onSocialLogin, loading }: SocialLoginProps) {
       </div>
 
       <p className="mt-6 text-center text-xs text-muted-foreground">
-        By clicking continue, you agree to our{" "}
+        {t("auth.common.termsText")}{" "}
         <Link
           href="#"
           className="underline underline-offset-4 hover:text-foreground"
         >
-          Terms of Service
+          {t("auth.common.termsLink")}
         </Link>{" "}
-        and{" "}
+        {t("auth.common.termsAnd")}{" "}
         <Link
           href="#"
           className="underline underline-offset-4 hover:text-foreground"
         >
-          Privacy Policy
+          {t("auth.common.privacyLink")}
         </Link>
         .
       </p>

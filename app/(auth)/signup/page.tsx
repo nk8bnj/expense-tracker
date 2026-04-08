@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react"
 
 import { signIn, signUp } from "@/lib/auth-client"
 import { emailSchema, type EmailFormValues } from "@/lib/auth-schemas"
+import { useLocale } from "@/lib/locale-context"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -42,6 +43,7 @@ type DetailsFormValues = z.infer<typeof detailsSchema>
 
 export default function SignUpPage() {
   const router = useRouter()
+  const { t } = useLocale()
   const [step, setStep] = useState<1 | 2>(1)
   const [email, setEmail] = useState("")
   const [serverError, setServerError] = useState<string | null>(null)
@@ -92,10 +94,10 @@ export default function SignUpPage() {
     >
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          Create an account
+          {t("auth.signup.title")}
         </h1>
         <p className="mt-2 text-muted-foreground text-sm">
-          Start tracking your expenses in seconds.
+          {t("auth.signup.subtitle")}
         </p>
       </div>
 
@@ -113,7 +115,7 @@ export default function SignUpPage() {
                 onSubmit={emailForm.handleSubmit(onEmailSubmit)}
                 register={emailForm.register}
                 error={emailForm.formState.errors.email}
-                submitLabel="Sign Up with Email"
+                submitLabel={t("auth.signup.signUpWithEmail")}
               />
               <SocialLogin onSocialLogin={handleSocialLogin} loading={socialLoading} />
             </div>
@@ -135,7 +137,7 @@ export default function SignUpPage() {
                   <EmailBadge email={email} />
 
                   <Field data-invalid={!!detailsForm.formState.errors.name}>
-                    <FieldLabel htmlFor="name">Name</FieldLabel>
+                    <FieldLabel htmlFor="name">{t("auth.signup.name")}</FieldLabel>
                     <Input
                       id="name"
                       aria-invalid={!!detailsForm.formState.errors.name}
@@ -154,7 +156,7 @@ export default function SignUpPage() {
                   </Field>
 
                   <Field data-invalid={!!detailsForm.formState.errors.password}>
-                    <FieldLabel htmlFor="password">Password</FieldLabel>
+                    <FieldLabel htmlFor="password">{t("auth.common.password")}</FieldLabel>
                     <PasswordInput
                       id="password"
                       aria-invalid={!!detailsForm.formState.errors.password}
@@ -175,7 +177,7 @@ export default function SignUpPage() {
                     data-invalid={!!detailsForm.formState.errors.confirmPassword}
                   >
                     <FieldLabel htmlFor="confirmPassword">
-                      Confirm password
+                      {t("auth.signup.confirmPassword")}
                     </FieldLabel>
                     <PasswordInput
                       id="confirmPassword"
@@ -209,16 +211,17 @@ export default function SignUpPage() {
                     {detailsForm.formState.isSubmitting ? (
                       <>
                         <Loader2 className="size-4 animate-spin" />
-                        Creating account...
+                        {t("auth.signup.creatingAccount")}
                       </>
                     ) : (
-                      "Create account"
+                      t("auth.signup.createAccount")
                     )}
                   </Button>
                 </FieldGroup>
               </form>
 
               <BackButton
+                label={t("auth.common.back")}
                 onClick={() => {
                   setStep(1)
                   setServerError(null)
@@ -230,12 +233,12 @@ export default function SignUpPage() {
       </AnimatePresence>
 
       <p className="mt-8 text-center text-sm text-muted-foreground">
-        Already have an account?{" "}
+        {t("auth.signup.alreadyHaveAccount")}{" "}
         <Link
           href="/login"
           className="text-foreground underline underline-offset-4 hover:text-primary"
         >
-          Sign in
+          {t("auth.signup.signInLink")}
         </Link>
       </p>
     </motion.div>

@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react"
 
 import { signIn } from "@/lib/auth-client"
 import { emailSchema, type EmailFormValues } from "@/lib/auth-schemas"
+import { useLocale } from "@/lib/locale-context"
 import { Button } from "@/components/ui/button"
 import {
   Field,
@@ -32,6 +33,7 @@ type PasswordFormValues = z.infer<typeof passwordSchema>
 
 export default function LoginPage() {
   const router = useRouter()
+  const { t } = useLocale()
   const [step, setStep] = useState<1 | 2>(1)
   const [email, setEmail] = useState("")
   const [serverError, setServerError] = useState<string | null>(null)
@@ -80,10 +82,10 @@ export default function LoginPage() {
     >
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold tracking-tight text-foreground">
-          Welcome back
+          {t("auth.login.title")}
         </h1>
         <p className="mt-2 text-muted-foreground text-sm">
-          Sign in to your account to continue.
+          {t("auth.login.subtitle")}
         </p>
       </div>
 
@@ -101,7 +103,7 @@ export default function LoginPage() {
                 onSubmit={emailForm.handleSubmit(onEmailSubmit)}
                 register={emailForm.register}
                 error={emailForm.formState.errors.email}
-                submitLabel="Continue with Email"
+                submitLabel={t("auth.login.continueWithEmail")}
               />
               <SocialLogin onSocialLogin={handleSocialLogin} loading={socialLoading} />
             </div>
@@ -123,7 +125,7 @@ export default function LoginPage() {
                   <EmailBadge email={email} />
 
                   <Field data-invalid={!!passwordForm.formState.errors.password}>
-                    <FieldLabel htmlFor="password">Password</FieldLabel>
+                    <FieldLabel htmlFor="password">{t("auth.common.password")}</FieldLabel>
                     <PasswordInput
                       id="password"
                       aria-invalid={!!passwordForm.formState.errors.password}
@@ -155,16 +157,17 @@ export default function LoginPage() {
                     {passwordForm.formState.isSubmitting ? (
                       <>
                         <Loader2 className="size-4 animate-spin" />
-                        Signing in...
+                        {t("auth.login.signingIn")}
                       </>
                     ) : (
-                      "Sign In"
+                      t("auth.login.signIn")
                     )}
                   </Button>
                 </FieldGroup>
               </form>
 
               <BackButton
+                label={t("auth.common.back")}
                 onClick={() => {
                   setStep(1)
                   setServerError(null)
@@ -176,12 +179,12 @@ export default function LoginPage() {
       </AnimatePresence>
 
       <p className="mt-8 text-center text-sm text-muted-foreground">
-        Don&apos;t have an account?{" "}
+        {t("auth.login.noAccount")}{" "}
         <Link
           href="/signup"
           className="text-foreground underline underline-offset-4 hover:text-primary"
         >
-          Sign up
+          {t("auth.login.signUpLink")}
         </Link>
       </p>
     </motion.div>

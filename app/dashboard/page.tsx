@@ -8,6 +8,8 @@ import { IncomeExpenseLineChart } from "@/components/charts/income-expense-line-
 import { CategoryPieChart } from "@/components/charts/category-pie-chart"
 import { MonthYearFilter, useMonthYearFilter, YEARS, MONTHS } from "@/components/month-year-filter"
 import { CATEGORIES, type CategoryValue } from "@/lib/categories"
+import { useLocale } from "@/lib/locale-context"
+import type { Translations } from "@/lib/i18n/types"
 import {
   Dialog,
   DialogContent,
@@ -65,10 +67,11 @@ function IncomeFormWithContext({
 }
 
 function EditIncomeButton({ onClick }: { onClick: () => void }) {
+  const { t } = useLocale()
   return (
     <Button variant="outline" size="sm" onClick={onClick}>
       <Pencil className="size-3.5" />
-      Add income
+      {t("dashboard.addIncome")}
     </Button>
   )
 }
@@ -85,30 +88,31 @@ function CategoryBreakdownSection() {
 
 function DashboardExpensesSection() {
   const { year, month, view } = useMonthYearFilter()
+  const { t } = useLocale()
   const [addOpen, setAddOpen] = useState(false)
   const [category, setCategory] = useState<CategoryValue | "all">("all")
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-semibold">Expenses</h2>
+        <h2 className="text-lg font-semibold">{t("dashboard.expenses.title")}</h2>
         <div className="flex items-center gap-2">
           <Select value={category} onValueChange={(v) => setCategory(v as CategoryValue | "all")}>
             <SelectTrigger size="sm" className="flex-1 sm:w-[160px]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All categories</SelectItem>
+              <SelectItem value="all">{t("dashboard.expenses.allCategories")}</SelectItem>
               {CATEGORIES.map((cat) => (
                 <SelectItem key={cat.value} value={cat.value}>
-                  {cat.label}
+                  {t(cat.labelKey)}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
           <Button size="sm" onClick={() => setAddOpen(true)} className="shrink-0">
             <Plus />
-            Add Expense
+            {t("dashboard.expenses.addExpense")}
           </Button>
         </div>
       </div>
@@ -128,6 +132,7 @@ function DashboardExpensesSection() {
 }
 
 function DashboardContent() {
+  const { t } = useLocale()
   const [editIncomeOpen, setEditIncomeOpen] = useState(false)
   const now = new Date()
   const [selectedYear, setSelectedYear] = useState(now.getFullYear())
@@ -146,7 +151,7 @@ function DashboardContent() {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-center gap-2">
-          <h1 className="text-xl font-medium tracking-tight">Dashboard</h1>
+          <h1 className="text-xl font-medium tracking-tight">{t("dashboard.title")}</h1>
           <EditIncomeButton onClick={() => handleOpenChange(true)} />
         </div>
         <MonthYearFilter />
@@ -155,8 +160,8 @@ function DashboardContent() {
       <Dialog open={editIncomeOpen} onOpenChange={handleOpenChange}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Income</DialogTitle>
-            <DialogDescription>Set your income for this month.</DialogDescription>
+            <DialogTitle>{t("dashboard.editIncome.title")}</DialogTitle>
+            <DialogDescription>{t("dashboard.editIncome.description")}</DialogDescription>
           </DialogHeader>
           <div className="flex gap-2">
             <Select value={String(selectedYear)} onValueChange={(v) => setSelectedYear(Number(v))}>
@@ -175,7 +180,7 @@ function DashboardContent() {
               </SelectTrigger>
               <SelectContent>
                 {MONTHS.map((m) => (
-                  <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                  <SelectItem key={m.value} value={m.value}>{t(`months.${m.value}` as keyof Translations)}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

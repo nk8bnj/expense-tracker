@@ -5,15 +5,9 @@ import { motion } from "motion/react"
 import { ArrowRight, BarChart3, TrendingUp, Wallet, Globe, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { MarketingNav } from "@/components/marketing-nav"
+import { useLocale } from "@/lib/locale-context"
 
 const ease = [0.25, 0.46, 0.45, 0.94] as const
-
-const hints = [
-  { icon: BarChart3, label: "Spending Insights", color: "text-indigo-500" },
-  { icon: TrendingUp, label: "Income Tracking", color: "text-emerald-500" },
-  { icon: Globe, label: "Multi-Currency", color: "text-sky-500" },
-  { icon: Wallet, label: "Net Balance", color: "text-amber-500" },
-]
 
 function fadeUp(delay = 0) {
   return {
@@ -130,6 +124,15 @@ function BackgroundGraphics() {
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function LandingPage() {
+  const { t } = useLocale()
+
+  const hints = [
+    { icon: BarChart3, labelKey: "landing.feature.spendingInsights" as const, color: "text-indigo-500" },
+    { icon: TrendingUp, labelKey: "landing.feature.incomeTracking" as const, color: "text-emerald-500" },
+    { icon: Globe, labelKey: "landing.feature.multiCurrency" as const, color: "text-sky-500" },
+    { icon: Wallet, labelKey: "landing.feature.netBalance" as const, color: "text-amber-500" },
+  ]
+
   return (
     <>
       <MarketingNav />
@@ -144,23 +147,23 @@ export default function LandingPage() {
             className="mb-4 flex items-center gap-1.5 rounded-full border border-border bg-card/60 px-3 py-1 text-sm text-muted-foreground"
           >
             <Star className="size-3.5 fill-emerald-500 text-emerald-500" />
-            <span>100% Free, always</span>
+            <span>{t("landing.freeBadge")}</span>
           </motion.div>
 
           <motion.h1
             {...fadeUp(0.06)}
             className="text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl"
           >
-            Track every dollar.
+            {t("landing.headline1")}
             <br />
-            <span className="text-muted-foreground">Build real clarity.</span>
+            <span className="text-muted-foreground">{t("landing.headline2")}</span>
           </motion.h1>
 
           <motion.p
             {...fadeUp(0.12)}
             className="mt-5 max-w-md text-base text-muted-foreground sm:text-lg"
           >
-            Log expenses, visualize trends, and follow your income vs. balance — in any currency.
+            {t("landing.subtitle")}
           </motion.p>
 
           <motion.div
@@ -173,12 +176,12 @@ export default function LandingPage() {
               asChild
             >
               <Link href="/signup">
-                Get Started Free
+                {t("landing.cta.getStarted")}
                 <ArrowRight className="size-4" />
               </Link>
             </Button>
             <Button variant="outline" className="rounded-xl" size="lg" asChild>
-              <Link href="/login">Sign In</Link>
+              <Link href="/login">{t("landing.cta.signIn")}</Link>
             </Button>
           </motion.div>
         </div>
@@ -188,10 +191,10 @@ export default function LandingPage() {
           {...fadeUp(0.28)}
           className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3 px-6 pb-6 sm:gap-x-8 sm:pb-10 md:gap-x-12"
         >
-          {hints.map(({ icon: Icon, label, color }) => (
-            <div key={label} className="flex items-center gap-2 text-muted-foreground">
+          {hints.map(({ icon: Icon, labelKey, color }) => (
+            <div key={labelKey} className="flex items-center gap-2 text-muted-foreground">
               <Icon className={`size-4 ${color}`} />
-              <span className="text-sm">{label}</span>
+              <span className="text-sm">{t(labelKey)}</span>
             </div>
           ))}
         </motion.div>

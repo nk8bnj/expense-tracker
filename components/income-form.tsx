@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useCurrency } from "@/lib/currency-context"
+import { useLocale } from "@/lib/locale-context"
 import { Field, FieldLabel, FieldError } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -28,6 +29,7 @@ type Props = {
 export function IncomeForm({ year, month, currentAmountCents, onSuccess }: Props) {
   const queryClient = useQueryClient()
   const { symbol } = useCurrency()
+  const { t } = useLocale()
 
   const {
     register,
@@ -63,7 +65,7 @@ export function IncomeForm({ year, month, currentAmountCents, onSuccess }: Props
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
       <Field>
-        <FieldLabel htmlFor="income-amount">Amount ({symbol})</FieldLabel>
+        <FieldLabel htmlFor="income-amount">{t("incomeForm.amount")} ({symbol})</FieldLabel>
         <Input
           id="income-amount"
           type="number"
@@ -80,7 +82,7 @@ export function IncomeForm({ year, month, currentAmountCents, onSuccess }: Props
         </FieldError>
       )}
       <Button type="submit" disabled={isPending}>
-        {isPending ? "Saving..." : "Save Income"}
+        {isPending ? t("incomeForm.saving") : t("incomeForm.save")}
       </Button>
     </form>
   )

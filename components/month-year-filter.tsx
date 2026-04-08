@@ -10,28 +10,30 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
+import { useLocale } from "@/lib/locale-context"
+import type { Translations } from "@/lib/i18n/types"
 
 export type ViewMode = "total" | "years" | "months"
 
-const VIEW_OPTIONS = [
-  { value: "total",  label: "Total"  },
-  { value: "years",  label: "Years"  },
-  { value: "months", label: "Months" },
-] as const
+const VIEW_OPTIONS: { value: ViewMode; labelKey: keyof Translations }[] = [
+  { value: "total",  labelKey: "filter.total"  },
+  { value: "years",  labelKey: "filter.years"  },
+  { value: "months", labelKey: "filter.months" },
+]
 
 export const MONTHS = [
-  { value: "1", label: "January" },
-  { value: "2", label: "February" },
-  { value: "3", label: "March" },
-  { value: "4", label: "April" },
-  { value: "5", label: "May" },
-  { value: "6", label: "June" },
-  { value: "7", label: "July" },
-  { value: "8", label: "August" },
-  { value: "9", label: "September" },
-  { value: "10", label: "October" },
-  { value: "11", label: "November" },
-  { value: "12", label: "December" },
+  { value: "1" },
+  { value: "2" },
+  { value: "3" },
+  { value: "4" },
+  { value: "5" },
+  { value: "6" },
+  { value: "7" },
+  { value: "8" },
+  { value: "9" },
+  { value: "10" },
+  { value: "11" },
+  { value: "12" },
 ]
 
 const YEAR_START = 2020
@@ -57,6 +59,7 @@ function MonthYearFilterInner({ className }: { className?: string }) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const { t } = useLocale()
 
   const now = new Date()
   const year = searchParams.get("year") ?? String(now.getFullYear())
@@ -84,7 +87,7 @@ function MonthYearFilterInner({ className }: { className?: string }) {
                 : "text-muted-foreground hover:text-foreground"
             )}
           >
-            {opt.label}
+            {t(opt.labelKey)}
           </button>
         ))}
       </div>
@@ -110,7 +113,7 @@ function MonthYearFilterInner({ className }: { className?: string }) {
           <SelectContent>
             {MONTHS.map((m) => (
               <SelectItem key={m.value} value={m.value}>
-                {m.label}
+                {t(`months.${m.value}` as keyof Translations)}
               </SelectItem>
             ))}
           </SelectContent>

@@ -17,6 +17,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { useMonthYearFilter } from "@/components/month-year-filter"
 import { centsToDisplay } from "@/lib/money"
 import { useCurrency } from "@/lib/currency-context"
+import { useLocale } from "@/lib/locale-context"
+import type { Translations } from "@/lib/i18n/types"
 
 type YearStat = {
   year: number
@@ -41,8 +43,6 @@ type DayStat = {
   categories: Record<string, number>
 }
 
-const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
-
 type TooltipPayload = {
   active?: boolean
   payload?: Array<{
@@ -54,7 +54,7 @@ type TooltipPayload = {
   label?: string
 }
 
-function CustomTooltip({ active, payload, label, currency }: TooltipPayload & { currency: string }) {
+function CustomTooltip({ active, payload, label, currency, localeStr }: TooltipPayload & { currency: string; localeStr: string }) {
   if (!active || !payload?.length) return null
   const items = payload
     .filter((p) => (p.value ?? 0) > 0)
@@ -69,7 +69,7 @@ function CustomTooltip({ active, payload, label, currency }: TooltipPayload & { 
       <p className="mb-1 font-medium text-foreground">{label}</p>
       {items.map((item) => (
         <p key={item.dataKey as string} style={{ color: item.color }} className="leading-5">
-          {item.name} : {centsToDisplay((item.value ?? 0) * 100, currency)}
+          {item.name} : {centsToDisplay((item.value ?? 0) * 100, currency, localeStr)}
         </p>
       ))}
     </div>
@@ -92,6 +92,7 @@ const skeleton = (
 function IncomeExpenseLineChartInner() {
   const { year, month, view } = useMonthYearFilter()
   const { currency } = useCurrency()
+  const { t, locale } = useLocale()
 
   const yearlyQ = useQuery<YearStat[]>({
     queryKey: ["stats", "yearly"],
@@ -139,10 +140,10 @@ function IncomeExpenseLineChartInner() {
       totalExpenses: d.totalExpenses / 100,
     }))
   } else if (view === "years" && monthlyQ.data) {
-    chartData = MONTH_NAMES.map((name, i) => {
+    chartData = Array.from({ length: 12 }, (_, i) => {
       const stat = monthlyQ.data.find((d) => d.month === i + 1)
       return {
-        name,
+        name: t(`months.${i + 1}` as keyof Translations),
         income: (stat?.income ?? 0) / 100,
         totalExpenses: (stat?.totalExpenses ?? 0) / 100,
       }
@@ -163,7 +164,7 @@ function IncomeExpenseLineChartInner() {
     >
       <Card>
         <CardHeader>
-          <CardTitle className="text-xs uppercase tracking-widest font-medium text-muted-foreground">Income vs Expenses</CardTitle>
+          <CardTitle className="text-xs uppercase tracking-widest font-medium text-muted-foreground">{t("chart.incomeVsExpenses")}</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
@@ -182,10 +183,10 @@ function IncomeExpenseLineChartInner() {
                 tickLine={false}
               />
               <YAxis hide={true} />
-              <Tooltip content={<CustomTooltip currency={currency} />} />
+              <Tooltip content={<CustomTooltip currency={currency} localeStr={locale === "uk" ? "uk-UA" : "en-US"} />} />
               <Area
                 dataKey="income"
-                name="Income"
+                name={t("chart.incomeLabel")}
                 type="monotone"
                 stroke="#76D6B1"
                 strokeWidth={2.5}
@@ -195,7 +196,7 @@ function IncomeExpenseLineChartInner() {
               />
               <Line
                 dataKey="totalExpenses"
-                name="Expenses"
+                name={t("chart.expensesLabel")}
                 type="monotone"
                 stroke="#f43f5e"
                 strokeWidth={1.5}
@@ -208,13 +209,13 @@ function IncomeExpenseLineChartInner() {
           <div className="mt-3 flex flex-wrap justify-center gap-x-5 gap-y-1">
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <span className="inline-block h-[2.5px] w-5 rounded-full bg-[#76D6B1]" />
-              Income
+              {t("chart.incomeLabel")}
             </span>
             <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
               <svg width="20" height="3" viewBox="0 0 20 3" className="overflow-visible">
                 <line x1="0" y1="1.5" x2="20" y2="1.5" stroke="#f43f5e" strokeWidth="1.5" strokeDasharray="5 4" />
               </svg>
-              Expenses
+              {t("chart.expensesLabel")}
             </span>
           </div>
         </CardContent>

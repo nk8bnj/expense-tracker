@@ -1,5 +1,8 @@
+"use client"
+
 import { UseFormRegister } from "react-hook-form"
 import { Button } from "@/components/ui/button"
+import { useLocale } from "@/lib/locale-context"
 import { Input } from "@/components/ui/input"
 import {
   Field,
@@ -17,11 +20,12 @@ interface EmailStepProps {
 }
 
 export function EmailStep({ onSubmit, register, error, submitLabel }: EmailStepProps) {
+  const { t } = useLocale()
   return (
     <form onSubmit={onSubmit} noValidate>
       <FieldGroup>
         <Field data-invalid={!!error}>
-          <FieldLabel htmlFor="email">Email</FieldLabel>
+          <FieldLabel htmlFor="email">{t("auth.common.email")}</FieldLabel>
           <Input
             id="email"
             type="email"

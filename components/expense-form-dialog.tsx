@@ -9,6 +9,7 @@ import { format } from "date-fns"
 
 import { CATEGORIES } from "@/lib/categories"
 import { useCurrency } from "@/lib/currency-context"
+import { useLocale } from "@/lib/locale-context"
 import {
   Dialog,
   DialogContent,
@@ -60,6 +61,7 @@ type FormValues = z.infer<typeof schema>
 export function ExpenseFormDialog({ open, onOpenChange, year, month, expense }: Props) {
   const queryClient = useQueryClient()
   const { symbol } = useCurrency()
+  const { t } = useLocale()
 
   const {
     register,
@@ -140,11 +142,11 @@ export function ExpenseFormDialog({ open, onOpenChange, year, month, expense }: 
     }}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{expense ? "Edit Expense" : "Add Expense"}</DialogTitle>
+          <DialogTitle>{expense ? t("expenseForm.editTitle") : t("expenseForm.addTitle")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <Field>
-            <FieldLabel>Amount ({symbol})</FieldLabel>
+            <FieldLabel>{t("expenseForm.amount")} ({symbol})</FieldLabel>
             <Input
               type="number"
               step="0.01"
@@ -156,20 +158,20 @@ export function ExpenseFormDialog({ open, onOpenChange, year, month, expense }: 
           </Field>
 
           <Field>
-            <FieldLabel>Category</FieldLabel>
+            <FieldLabel>{t("expenseForm.category")}</FieldLabel>
             <Controller
               control={control}
               name="category"
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select a category" />
+                    <SelectValue placeholder={t("expenseForm.categoryPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
                     {CATEGORIES.map(cat => (
                       <SelectItem key={cat.value} value={cat.value}>
                         <span className="flex items-center gap-2">
-                          {cat.label}
+                          {t(cat.labelKey)}
                           <span
                             className="h-2.5 w-2.5 rounded-full shrink-0"
                             style={{ backgroundColor: cat.color }}
@@ -185,23 +187,23 @@ export function ExpenseFormDialog({ open, onOpenChange, year, month, expense }: 
           </Field>
 
           <Field>
-            <FieldLabel>Description (optional)</FieldLabel>
+            <FieldLabel>{t("expenseForm.description")}</FieldLabel>
             <Input
               type="text"
-              placeholder="What was this for?"
+              placeholder={t("expenseForm.descriptionPlaceholder")}
               {...register("description")}
             />
           </Field>
 
           <Field>
-            <FieldLabel>Date</FieldLabel>
+            <FieldLabel>{t("expenseForm.date")}</FieldLabel>
             <Input type="date" {...register("date")} />
             {errors.date && <FieldError>{errors.date.message}</FieldError>}
           </Field>
 
           {isError && (
             <p className="text-destructive text-sm">
-              {error instanceof Error ? error.message : "Something went wrong"}
+              {error instanceof Error ? error.message : t("expenseForm.genericError")}
             </p>
           )}
 
@@ -211,10 +213,10 @@ export function ExpenseFormDialog({ open, onOpenChange, year, month, expense }: 
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Cancel
+              {t("expenseForm.cancel")}
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Saving..." : expense ? "Save Changes" : "Add Expense"}
+              {isPending ? t("expenseForm.saving") : expense ? t("expenseForm.saveChanges") : t("expenseForm.addButton")}
             </Button>
           </DialogFooter>
         </form>

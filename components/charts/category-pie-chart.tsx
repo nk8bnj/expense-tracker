@@ -8,6 +8,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { useMonthYearFilter } from "@/components/month-year-filter"
 import { centsToDisplay } from "@/lib/money"
 import { useCurrency } from "@/lib/currency-context"
+import { useLocale } from "@/lib/locale-context"
 import { CATEGORIES } from "@/lib/categories"
 
 type CategoryStat = {
@@ -32,6 +33,7 @@ const skeleton = (
 function CategoryPieChartInner() {
   const { year, month, view } = useMonthYearFilter()
   const { currency } = useCurrency()
+  const { t, locale } = useLocale()
 
   const url =
     view === "total" ? `/api/stats/categories`
@@ -57,11 +59,11 @@ function CategoryPieChartInner() {
       >
         <Card>
           <CardHeader>
-            <CardTitle className="text-xs uppercase tracking-widest font-medium text-muted-foreground">Spending by Category</CardTitle>
+            <CardTitle className="text-xs uppercase tracking-widest font-medium text-muted-foreground">{t("chart.spendingByCategory")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex h-[300px] items-center justify-center text-sm text-muted-foreground">
-              No expense data
+              {t("chart.noExpenseData")}
             </div>
           </CardContent>
         </Card>
@@ -77,7 +79,7 @@ function CategoryPieChartInner() {
     >
       <Card>
         <CardHeader>
-          <CardTitle className="text-xs uppercase tracking-widest font-medium text-muted-foreground">Spending by Category</CardTitle>
+          <CardTitle className="text-xs uppercase tracking-widest font-medium text-muted-foreground">{t("chart.spendingByCategory")}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center gap-6 w-full">
@@ -98,7 +100,7 @@ function CategoryPieChartInner() {
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(val: number | undefined) => val != null ? centsToDisplay(val, currency) : ""}
+                    formatter={(val: number | undefined) => val != null ? centsToDisplay(val, currency, locale === "uk" ? "uk-UA" : "en-US") : ""}
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -107,12 +109,12 @@ function CategoryPieChartInner() {
             <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
               {data.map((entry, i) => (
                 <div key={entry.category} className="flex items-center gap-1.5">
-                  <span className="text-xs text-muted-foreground">{CATEGORIES.find(c => c.value === entry.category)?.label ?? entry.category}</span>
+                  <span className="text-xs text-muted-foreground">{(() => { const cat = CATEGORIES.find(c => c.value === entry.category); return cat ? t(cat.labelKey) : entry.category })()}</span>
                   <span
                     className="h-2.5 w-2.5 shrink-0 rounded-full"
                     style={{ backgroundColor: CATEGORIES.find(c => c.value === entry.category)?.color ?? FALLBACK_COLOR }}
                   />
-                  <span className="text-xs font-medium">{centsToDisplay(entry.totalCents, currency)}</span>
+                  <span className="text-xs font-medium">{centsToDisplay(entry.totalCents, currency, locale === "uk" ? "uk-UA" : "en-US")}</span>
                 </div>
               ))}
             </div>

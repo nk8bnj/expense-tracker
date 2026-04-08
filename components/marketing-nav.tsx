@@ -4,6 +4,14 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { TrendingUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useLocale } from "@/lib/locale-context"
+import type { Locale } from "@/lib/i18n/types"
+import { cn } from "@/lib/utils"
+
+const LOCALES: { value: Locale; label: string }[] = [
+  { value: "en", label: "EN" },
+  { value: "uk", label: "UA" },
+]
 
 export function Logo() {
   return (
@@ -18,6 +26,7 @@ export function Logo() {
 
 export function MarketingNav({ scrollAware = false }: { scrollAware?: boolean }) {
   const [scrolled, setScrolled] = useState(false)
+  const { locale, setLocale, t } = useLocale()
 
   useEffect(() => {
     if (!scrollAware) return
@@ -41,14 +50,31 @@ export function MarketingNav({ scrollAware = false }: { scrollAware?: boolean })
       </Link>
       <div className="flex-1" />
       <nav className="flex items-center gap-2">
+        {/* Language switcher */}
+        <div className="flex items-center gap-0.5 rounded-lg bg-muted p-0.5 mr-1">
+          {LOCALES.map(({ value, label }) => (
+            <button
+              key={value}
+              onClick={() => setLocale(value)}
+              className={cn(
+                "flex h-7 min-w-8 cursor-pointer items-center justify-center rounded-md px-2 text-xs font-medium transition-all",
+                locale === value
+                  ? "bg-background text-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
         <Button variant="ghost" className="rounded-xl" asChild>
-          <Link href="/login">Sign In</Link>
+          <Link href="/login">{t("nav.signIn")}</Link>
         </Button>
         <Button
           className="rounded-xl bg-foreground text-background hover:bg-foreground/90"
           asChild
         >
-          <Link href="/signup">Sign Up</Link>
+          <Link href="/signup">{t("nav.signUp")}</Link>
         </Button>
       </nav>
     </header>

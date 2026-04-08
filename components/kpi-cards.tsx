@@ -9,6 +9,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { useMonthYearFilter } from "@/components/month-year-filter"
 import { centsToDisplay } from "@/lib/money"
 import { useCurrency } from "@/lib/currency-context"
+import { useLocale } from "@/lib/locale-context"
+import type { Translations } from "@/lib/i18n/types"
 
 type MonthStat = {
   month: number
@@ -42,21 +44,21 @@ function AnimatedAmount({ cents, isError, currency }: { cents: number; isError: 
 
 const CARDS = [
   {
-    label: "Total Income",
+    labelKey: "kpi.totalIncome" as keyof Translations,
     field: "income" as StatField,
     icon: TrendingUp,
     iconClass: "text-emerald-500",
     borderColor: "border-t-emerald-500/60",
   },
   {
-    label: "Total Expenses",
+    labelKey: "kpi.totalExpenses" as keyof Translations,
     field: "totalExpenses" as StatField,
     icon: TrendingDown,
     iconClass: "text-rose-500",
     borderColor: "border-t-rose-500/60",
   },
   {
-    label: "Net Balance",
+    labelKey: "kpi.netBalance" as keyof Translations,
     field: "balance" as StatField,
     icon: Wallet,
     iconClass: "text-indigo-500",
@@ -67,6 +69,7 @@ const CARDS = [
 function KpiCardsInner() {
   const { year, month, view } = useMonthYearFilter()
   const { currency } = useCurrency()
+  const { t } = useLocale()
 
   const yearlyQuery = useQuery<YearlyStat[]>({
     queryKey: ["stats", "yearly"],
@@ -121,7 +124,7 @@ function KpiCardsInner() {
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {CARDS.map((card) => (
-          <Card key={card.label}>
+          <Card key={card.labelKey}>
             <CardHeader>
               <div className="flex items-center gap-2">
                 <div className="h-4 w-4 animate-pulse rounded bg-muted" />
@@ -146,7 +149,7 @@ function KpiCardsInner() {
 
         return (
           <motion.div
-            key={card.label}
+            key={card.labelKey}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{
@@ -159,7 +162,7 @@ function KpiCardsInner() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-muted-foreground">
                   <Icon className={`size-4 ${card.iconClass}`} />
-                  <span className="text-xs uppercase tracking-widest font-medium">{card.label}</span>
+                  <span className="text-xs uppercase tracking-widest font-medium">{t(card.labelKey)}</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -181,7 +184,7 @@ export function KpiCards() {
       fallback={
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           {CARDS.map((card) => (
-            <Card key={card.label}>
+            <Card key={card.labelKey}>
               <CardHeader>
                 <div className="h-4 w-24 animate-pulse rounded bg-muted" />
               </CardHeader>

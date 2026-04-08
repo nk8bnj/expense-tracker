@@ -6,6 +6,8 @@ import { LogOut, TrendingUp } from "lucide-react"
 
 import { useSession, signOut } from "@/lib/auth-client"
 import { useCurrency, type Currency } from "@/lib/currency-context"
+import { useLocale } from "@/lib/locale-context"
+import type { Locale } from "@/lib/i18n/types"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
@@ -16,11 +18,17 @@ const CURRENCIES: { value: Currency; label: string }[] = [
   { value: "EUR", label: "€" },
 ]
 
+const LOCALES: { value: Locale; label: string }[] = [
+  { value: "en", label: "EN" },
+  { value: "uk", label: "UA" },
+]
+
 export function Topbar() {
   const { data: session } = useSession()
   const router = useRouter()
   const [isSigningOut, setIsSigningOut] = useState(false)
   const { currency, setCurrency } = useCurrency()
+  const { locale, setLocale, t } = useLocale()
 
   const user = session?.user
   const initial = user?.name?.[0]?.toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? "?"
@@ -39,7 +47,7 @@ export function Topbar() {
           <TrendingUp className="size-4 text-foreground" strokeWidth={2.5} />
         </div>
         <span className="hidden sm:inline text-sm font-semibold tracking-tight text-foreground">
-          Expense Tracker
+          {t("topbar.appName")}
         </span>
       </div>
 
@@ -60,6 +68,24 @@ export function Topbar() {
           >
             <span>{label}</span>
             <span className="hidden sm:inline opacity-70">{value}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Language switcher */}
+      <div className="flex items-center gap-0.5 rounded-lg bg-muted p-0.5">
+        {LOCALES.map(({ value, label }) => (
+          <button
+            key={value}
+            onClick={() => setLocale(value)}
+            className={cn(
+              "flex h-7 min-w-9 cursor-pointer items-center justify-center rounded-md px-2.5 text-xs font-medium transition-all",
+              locale === value
+                ? "bg-background text-foreground shadow-xs"
+                : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            {label}
           </button>
         ))}
       </div>
@@ -95,7 +121,7 @@ export function Topbar() {
         size="icon-sm"
         onClick={handleSignOut}
         disabled={isSigningOut}
-        aria-label="Sign out"
+        aria-label={t("topbar.signOut")}
         className="text-muted-foreground hover:text-foreground"
       >
         <LogOut className="size-4" />

@@ -8,6 +8,7 @@ import { MoreHorizontal, Pencil, Trash2 } from "lucide-react"
 import { CATEGORIES } from "@/lib/categories"
 import { centsToDisplay } from "@/lib/money"
 import { useCurrency } from "@/lib/currency-context"
+import { useLocale } from "@/lib/locale-context"
 import { ExpenseFormDialog } from "@/components/expense-form-dialog"
 import {
   AlertDialog,
@@ -38,7 +39,7 @@ type Expense = {
   updatedAt: string
 }
 
-const TABLE_HEADERS = ["Date", "Category", "Description", "Amount", ""]
+// Headers rendered dynamically via t() inside the component
 
 function TableSkeleton() {
   return (
@@ -60,13 +61,11 @@ function TableSkeleton() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b bg-muted/50">
-              {TABLE_HEADERS.map((h, i) => (
+              {["", "", "", "", ""].map((_, i) => (
                 <th
                   key={i}
                   className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide last:w-10"
-                >
-                  {h}
-                </th>
+                />
               ))}
             </tr>
           </thead>
@@ -98,6 +97,7 @@ function TableSkeleton() {
 export function ExpensesTable({ year, month, category }: { year?: number; month?: number; category?: string }) {
   const queryClient = useQueryClient()
   const { currency } = useCurrency()
+  const { t, locale, dateFnsLocale } = useLocale()
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null)
   const [deletingExpense, setDeletingExpense] = useState<Expense | null>(null)
 
@@ -131,7 +131,7 @@ export function ExpensesTable({ year, month, category }: { year?: number; month?
   if (isError) {
     return (
       <div className="rounded-lg border overflow-hidden">
-        <p className="px-4 py-6 text-sm text-muted-foreground">Failed to load expenses.</p>
+        <p className="px-4 py-6 text-sm text-muted-foreground">{t("table.failedToLoad")}</p>
       </div>
     )
   }
@@ -141,7 +141,7 @@ export function ExpensesTable({ year, month, category }: { year?: number; month?
       {/* Mobile card view */}
       <div className="sm:hidden rounded-lg border overflow-hidden">
         {filtered.length === 0 ? (
-          <p className="px-4 py-10 text-center text-sm text-muted-foreground">No expenses yet.</p>
+          <p className="px-4 py-10 text-center text-sm text-muted-foreground">{t("table.noExpenses")}</p>
         ) : (
           <div className="divide-y">
             {filtered.map(expense => {
@@ -153,14 +153,14 @@ export function ExpensesTable({ year, month, category }: { year?: number; month?
                 >
                   <div className="flex flex-col gap-0.5 min-w-0 flex-1">
                     <div className="flex items-center gap-1.5">
-                      <span className="text-sm font-medium">{cat?.label ?? expense.category}</span>
+                      <span className="text-sm font-medium">{cat ? t(cat.labelKey) : expense.category}</span>
                       <span
                         className="h-2 w-2 rounded-full shrink-0"
                         style={{ backgroundColor: cat?.color ?? "#B0B0B0" }}
                       />
                     </div>
                     <span className="text-xs text-muted-foreground">
-                      {format(new Date(expense.date), "MMM d, yyyy")}
+                      {format(new Date(expense.date), "PP", { locale: dateFnsLocale })}
                     </span>
                     {expense.description && (
                       <span className="text-xs text-muted-foreground truncate">{expense.description}</span>
@@ -168,7 +168,7 @@ export function ExpensesTable({ year, month, category }: { year?: number; month?
                   </div>
                   <div className="flex items-center gap-2 ml-3 shrink-0">
                     <span className="text-sm font-medium tabular-nums">
-                      {centsToDisplay(expense.amountCents, currency)}
+                      {centsToDisplay(expense.amountCents, currency, locale === "uk" ? "uk-UA" : "en-US")}
                     </span>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -180,11 +180,11 @@ export function ExpensesTable({ year, month, category }: { year?: number; month?
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => setEditingExpense(expense)}>
                           <Pencil />
-                          Edit
+                          {t("table.edit")}
                         </DropdownMenuItem>
                         <DropdownMenuItem variant="destructive" onClick={() => setDeletingExpense(expense)}>
                           <Trash2 />
-                          Delete
+                          {t("table.delete")}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -201,7 +201,7 @@ export function ExpensesTable({ year, month, category }: { year?: number; month?
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b bg-muted/50">
-              {TABLE_HEADERS.map((h, i) => (
+              {([t("table.date"), t("table.category"), t("table.description"), t("table.amount"), ""] as string[]).map((h, i) => (
                 <th
                   key={i}
                   className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide last:w-10"
@@ -218,7 +218,7 @@ export function ExpensesTable({ year, month, category }: { year?: number; month?
                   colSpan={5}
                   className="px-4 py-10 text-center text-sm text-muted-foreground"
                 >
-                  No expenses yet.
+                  {t("table.noExpenses")}
                 </td>
               </tr>
             ) : (
@@ -230,11 +230,11 @@ export function ExpensesTable({ year, month, category }: { year?: number; month?
                     className="border-b last:border-0 hover:bg-muted/30 transition-colors"
                   >
                     <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
-                      {format(new Date(expense.date), "MMM d, yyyy")}
+                      {format(new Date(expense.date), "PP", { locale: dateFnsLocale })}
                     </td>
                     <td className="px-4 py-3">
                       <span className="flex items-center gap-1.5">
-                        {cat?.label ?? expense.category}
+                        {cat ? t(cat.labelKey) : expense.category}
                         <span
                           className="h-2 w-2 rounded-full shrink-0"
                           style={{ backgroundColor: cat?.color ?? "#B0B0B0" }}
@@ -245,7 +245,7 @@ export function ExpensesTable({ year, month, category }: { year?: number; month?
                       {expense.description ?? "—"}
                     </td>
                     <td className="px-4 py-3 text-right font-medium tabular-nums whitespace-nowrap">
-                      {centsToDisplay(expense.amountCents, currency)}
+                      {centsToDisplay(expense.amountCents, currency, locale === "uk" ? "uk-UA" : "en-US")}
                     </td>
                     <td className="px-4 py-3 w-10">
                       <DropdownMenu>
@@ -264,14 +264,14 @@ export function ExpensesTable({ year, month, category }: { year?: number; month?
                             onClick={() => setEditingExpense(expense)}
                           >
                             <Pencil />
-                            Edit
+                            {t("table.edit")}
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             variant="destructive"
                             onClick={() => setDeletingExpense(expense)}
                           >
                             <Trash2 />
-                            Delete
+                            {t("table.delete")}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -298,19 +298,19 @@ export function ExpensesTable({ year, month, category }: { year?: number; month?
       >
         <AlertDialogContent size="sm">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete expense?</AlertDialogTitle>
+            <AlertDialogTitle>{t("deleteDialog.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone.
+              {t("deleteDialog.description")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t("deleteDialog.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
               onClick={() => deletingExpense && deleteExpense(deletingExpense.id)}
               disabled={isDeleting}
             >
-              {isDeleting ? "Deleting..." : "Delete"}
+              {isDeleting ? t("deleteDialog.deleting") : t("deleteDialog.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

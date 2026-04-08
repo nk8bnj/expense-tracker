@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Outfit } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import { LanguageHtmlAttr } from "@/components/language-html-attr";
 
 const outfit = Outfit({subsets:['latin'],variable:'--font-sans'});
 
@@ -31,7 +32,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <LanguageHtmlAttr />
+          {children}
+        </Providers>
       </body>
     </html>
   );

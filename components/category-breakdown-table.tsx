@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 import { centsToDisplay } from "@/lib/money"
 import { CATEGORIES } from "@/lib/categories"
 import { useCurrency } from "@/lib/currency-context"
+import { useLocale } from "@/lib/locale-context"
 
 type CategoryStat = {
   category: string
@@ -12,24 +13,20 @@ type CategoryStat = {
   percentage: number
 }
 
-const TABLE_HEADERS = ["Category", "Amount", "% of Total"]
-
 function TableSkeleton() {
   return (
     <div className="rounded-lg border overflow-hidden w-full">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b bg-muted/50">
-            {TABLE_HEADERS.map((h, i) => (
+            {[0, 1, 2].map((i) => (
               <th
                 key={i}
                 className={cn(
                   "px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wide",
                   i === 0 ? "text-left" : "text-right"
                 )}
-              >
-                <span className="tracking-widest">{h}</span>
-              </th>
+              />
             ))}
           </tr>
         </thead>
@@ -63,6 +60,7 @@ interface CategoryBreakdownTableProps {
 
 export function CategoryBreakdownTable({ year, month }: CategoryBreakdownTableProps) {
   const { currency } = useCurrency()
+  const { t, locale } = useLocale()
   const url = !year
     ? `/api/stats/categories`
     : month
@@ -84,20 +82,25 @@ export function CategoryBreakdownTable({ year, month }: CategoryBreakdownTablePr
     return (
       <div className="rounded-lg border overflow-hidden w-full">
         <p className="px-4 py-6 text-sm text-muted-foreground">
-          Failed to load category stats.
+          {t("table.breakdown.failedToLoad")}
         </p>
       </div>
     )
   }
 
   const rows = data ?? []
+  const headers = [
+    t("table.breakdown.category"),
+    t("table.breakdown.amount"),
+    t("table.breakdown.percentOfTotal"),
+  ]
 
   return (
     <div className="rounded-lg border overflow-hidden w-full">
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b bg-muted/50">
-            {TABLE_HEADERS.map((h, i) => (
+            {headers.map((h, i) => (
               <th
                 key={i}
                 className={cn(
@@ -117,7 +120,7 @@ export function CategoryBreakdownTable({ year, month }: CategoryBreakdownTablePr
                 colSpan={3}
                 className="px-4 py-10 text-center text-sm text-muted-foreground"
               >
-                No expenses recorded.
+                {t("table.breakdown.noData")}
               </td>
             </tr>
           ) : (
@@ -132,7 +135,7 @@ export function CategoryBreakdownTable({ year, month }: CategoryBreakdownTablePr
                 >
                   <td className="px-4 py-3">
                     <span className="flex items-center gap-2">
-                      {cat?.label ?? row.category}
+                      {cat ? t(cat.labelKey) : row.category}
                       <span
                         className="h-2.5 w-2.5 rounded-full shrink-0"
                         style={{ backgroundColor: color }}
@@ -140,7 +143,7 @@ export function CategoryBreakdownTable({ year, month }: CategoryBreakdownTablePr
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap">
-                    {centsToDisplay(row.totalCents, currency)}
+                    {centsToDisplay(row.totalCents, currency, locale === "uk" ? "uk-UA" : "en-US")}
                   </td>
                   <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap text-muted-foreground">
                     {row.percentage.toFixed(1)}%
